@@ -37,3 +37,4 @@ Thumbs.db
 
 # custom
 .env
+/assets/configs/commands.json

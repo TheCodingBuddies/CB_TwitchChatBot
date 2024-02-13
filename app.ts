@@ -1,5 +1,6 @@
-import {CBWebSocket} from "./src/CBWebSocket";
 import {configDotenv} from "dotenv";
+import {ChatBot} from "./src/ChatBot";
 
 configDotenv({path: ".env"})
-const socket = new CBWebSocket("thecodingbuddies");
+const chatBot = new ChatBot();
+

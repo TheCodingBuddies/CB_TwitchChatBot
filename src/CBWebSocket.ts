@@ -32,10 +32,5 @@ export class CBWebSocket {
                 this.client.send(message.answer());
             }
         })
-
-        this.client.on("ping", () => {
-            console.log("ping received");
-            this.client.send("pong");
-        })
     }
 }
