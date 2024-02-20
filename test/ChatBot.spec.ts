@@ -1,19 +1,22 @@
 import {ChatBot} from "../src/ChatBot";
-import {Command, CommandParser} from "../src/Config/CommandParser";
+import {ConfigStorage} from "../src/Config/ConfigStorage";
 
-const mockParse = ((): Command[] => {
-    return [{name: "!test", response: "success"}]
-});
+let configsLoaded = false;
+const mockLoadConfigs = () => {
+    configsLoaded = true;
+};
 
 describe('ChatBot', () => {
+
     beforeEach(() => {
-        CommandParser.parse = mockParse;
+        ConfigStorage.loadConfigs = mockLoadConfigs;
+        configsLoaded = false;
     })
 
     describe('load configs', () => {
-        it('loads commands config', () => {
-            const chatBot = new ChatBot();
-            expect(chatBot.commands).toEqual([{name: "!test", response: "success"}]);
+        it('loads the config commands', () => {
+            new ChatBot();
+            expect(configsLoaded).toBeTruthy();
         });
     });
 });

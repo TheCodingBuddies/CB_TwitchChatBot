@@ -1,10 +1,17 @@
 import {PrivateMessage} from "../../src/Messages/PrivateMessage";
+import {Command} from "../../src/Config/CommandParser";
+import {ConfigStorage} from "../../src/Config/ConfigStorage";
+
+const mockGetCommand = () : Command[] => {
+    return [{name: '!dc', response: 'discordLink'}]
+};
+
 
 describe('Message Parser Tests', () => {
 
     beforeEach(() => {
         process.env.NICKNAME = "nickname";
-        process.env.DISCORD = "discordLink";
+        ConfigStorage.getCommands = mockGetCommand;
     })
 
     describe('parses the PrivateMessage correctly', () => {

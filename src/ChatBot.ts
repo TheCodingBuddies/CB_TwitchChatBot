@@ -1,16 +1,11 @@
 import {CBWebSocket} from "./CBWebSocket";
-import {Command, CommandParser} from "./Config/CommandParser";
+import {ConfigStorage} from "./Config/ConfigStorage";
 
 export class ChatBot {
-    private socket : CBWebSocket;
-    commands: Command[];
+    private socket: CBWebSocket;
 
     constructor() {
-        this.commands = this.loadCommands();
+        ConfigStorage.loadConfigs();
         this.socket = new CBWebSocket("thecodingbuddies");
-    }
-
-    loadCommands() : Command[] {
-        return CommandParser.parse();
     }
 }

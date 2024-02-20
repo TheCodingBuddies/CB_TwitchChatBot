@@ -9,7 +9,7 @@ export class MessageFactory {
         } else if (rawMessage.startsWith("PING")) {
             return new PingMessage(rawMessage);
         } else {
-            return new UnknownMessage();
+            return new UnknownMessage(rawMessage);
         }
     }
 }

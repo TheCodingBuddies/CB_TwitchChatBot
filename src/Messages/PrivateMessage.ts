@@ -1,3 +1,5 @@
+import {ConfigStorage} from "../Config/ConfigStorage";
+
 export class PrivateMessage implements Message {
     username: string;
     channel: string;
@@ -26,14 +28,11 @@ export class PrivateMessage implements Message {
 
     private getAnswer(): string {
         let answer: string = "";
-        if (this.isDcCommand()) {
-            this.content = `${process.env.DISCORD}`;
-            answer = `:${this.username} PRIVMSG #${this.channel} :${this.content}`;
+        const foundCommand = ConfigStorage.getCommands()
+            .find(command => command.name === this.content);
+        if (!!foundCommand) {
+            answer = `:${this.username} PRIVMSG #${this.channel} :${foundCommand.response}`;
         }
         return answer;
-    }
-
-    private isDcCommand(): boolean {
-        return this.content == '!dc';
     }
 }
