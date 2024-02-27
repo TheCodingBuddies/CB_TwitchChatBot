@@ -3,7 +3,8 @@ import {Command} from "../../src/Config/CommandParser";
 import {ConfigStorage} from "../../src/Config/ConfigStorage";
 
 const mockGetCommand = () : Command[] => {
-    return [{name: '!dc', response: 'discordLink'}]
+    return [{name: '!dc', response: 'discordLink'},
+        {name: '!hello', response: 'Hi ${sender}!'}]
 };
 
 
@@ -42,10 +43,20 @@ describe('Message Parser Tests', () => {
             expect(message.answer()).toEqual(":nickname PRIVMSG #channel :discordLink");
         })
 
+        it('answer on command even on wrong letter cases', () => {
+            const message = new PrivateMessage(":username PRIVMSG #channel :!Dc");
+            expect(message.answer()).toEqual(":nickname PRIVMSG #channel :discordLink");
+        })
+
         it('answers nothing on unknown command', () => {
             const message = new PrivateMessage(":username PRIVMSG #channel :!unknown");
             expect(message.answer()).toEqual("");
         })
+
+        it('replaces the ${sender} placeholder with username', () => {
+            const message = new PrivateMessage(":username PRIVMSG #channel :!hello");
+            expect(message.answer()).toEqual(":nickname PRIVMSG #channel :Hi username!");
+        });
     })
 
     describe('error handling', () => {

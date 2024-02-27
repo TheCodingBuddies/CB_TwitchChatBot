@@ -7,7 +7,7 @@ jest.mock('fs', () => {
         if (loadFileFailed) {
             throw new Error("File not found");
         }
-        const firstCommand: Command = {name: "!firstCommand", response: "firstSuccess"};
+        const firstCommand: Command = {name: "!firstcommand", response: "firstSuccess"};
         const secondCommand: Command = {name: "!secondCommand", response: "secondSuccess"};
         return JSON.stringify({commands: [firstCommand, secondCommand]})
     });
@@ -29,9 +29,9 @@ describe('Parse Command Config', () => {
     it('parses a command correctly', () => {
         const command: Command[] = CommandParser.parse();
         expect(command).toHaveLength(2);
-        expect(command[0].name).toEqual("!firstCommand");
+        expect(command[0].name).toEqual("!firstcommand");
         expect(command[0].response).toEqual("firstSuccess");
-        expect(command[1].name).toEqual("!secondCommand");
+        expect(command[1].name).toEqual("!secondcommand");
         expect(command[1].response).toEqual("secondSuccess");
     });
 

@@ -2,6 +2,7 @@ import {ConfigStorage} from "../Config/ConfigStorage";
 
 export class PrivateMessage implements Message {
     username: string;
+    author: string;
     channel: string;
     content: string;
 
@@ -10,6 +11,7 @@ export class PrivateMessage implements Message {
             let parts: string[] = message.split(' ');
             let content = parts.slice(3).join(' ');
             this.username = PrivateMessage.extractUsernameFrom(parts[0]);
+            this.author = this.username;
             this.channel = parts[2].slice(1);
             this.content = content.slice(1);
         } catch (e) {
@@ -29,10 +31,15 @@ export class PrivateMessage implements Message {
     private getAnswer(): string {
         let answer: string = "";
         const foundCommand = ConfigStorage.getCommands()
-            .find(command => command.name === this.content);
+            .find(command => command.name === this.content.toLowerCase());
         if (!!foundCommand) {
-            answer = `:${this.username} PRIVMSG #${this.channel} :${foundCommand.response}`;
+            const response = this.replaceSender(foundCommand.response);
+            answer = `:${this.username} PRIVMSG #${this.channel} :${response}`;
         }
         return answer;
+    }
+
+    private replaceSender(response: string): string {
+        return response.replace('${sender}', this.author);
     }
 }

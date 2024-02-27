@@ -21,6 +21,8 @@ export class CommandParser {
         } catch (error) {
             console.log(error.message);
         }
-        return collection.commands;
+        return  collection.commands.map(cmd => {
+            return {name: cmd.name.toLowerCase(), response: cmd.response}
+        });
     }
 }
