@@ -35,9 +35,8 @@ describe('Parse Command Config', () => {
         expect(command[1].response).toEqual("secondSuccess");
     });
 
-    it('throws error on invalid file location', () => {
+    it('throws error on invalid file location and returns no commands', () => {
         loadFileFailed = true;
         expect(CommandParser.parse()).toEqual([]);
-
     });
 })

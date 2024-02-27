@@ -13,7 +13,8 @@ still in progress! 😉
 add assets/configs/commands.json
 
 example:
-```json {
+```json 
+{
   "commands": [
     {
       "name": "!dc",
@@ -26,5 +27,7 @@ example:
   ]
 }
 ```
+
+Duplicated commands lead to an internal error and closes the chatbot.
 
 

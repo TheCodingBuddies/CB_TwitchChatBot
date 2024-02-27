@@ -5,7 +5,12 @@ export class ChatBot {
     private socket: CBWebSocket;
 
     constructor() {
-        ConfigStorage.loadConfigs();
+        try {
+            ConfigStorage.loadConfigs();
+        } catch (error) {
+            console.error(error.message);
+            process.exit(-1);
+        }
         this.socket = new CBWebSocket("thecodingbuddies");
     }
 }
