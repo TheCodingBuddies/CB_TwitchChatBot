@@ -3,8 +3,8 @@ import {Command} from "../../src/Config/CommandParser";
 import {ConfigStorage} from "../../src/Config/ConfigStorage";
 
 const mockGetCommand = () : Command[] => {
-    return [{name: '!dc', response: 'discordLink'},
-        {name: '!hello', response: 'Hi ${sender}!'}]
+    return [{name: '!dc', response: 'discordLink', cooldownInSec: 2},
+        {name: '!hello', response: 'Hi ${sender}!', cooldownInSec: 2}]
 };
 
 

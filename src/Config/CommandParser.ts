@@ -3,7 +3,8 @@ import {readFileSync} from "fs";
 
 export interface Command {
     name: string,
-    response: string
+    response: string,
+    cooldownInSec: number,
 }
 
 export interface CommandCollection {
@@ -21,8 +22,8 @@ export class CommandParser {
         } catch (error) {
             console.log(error.message);
         }
-        return  collection.commands.map(cmd => {
-            return {name: cmd.name.toLowerCase(), response: cmd.response}
+        return collection.commands.map(cmd => {
+            return {name: cmd.name.toLowerCase(), response: cmd.response, cooldownInSec: cmd.cooldownInSec}
         });
     }
 }

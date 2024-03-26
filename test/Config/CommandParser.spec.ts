@@ -7,8 +7,8 @@ jest.mock('fs', () => {
         if (loadFileFailed) {
             throw new Error("File not found");
         }
-        const firstCommand: Command = {name: "!firstcommand", response: "firstSuccess"};
-        const secondCommand: Command = {name: "!secondCommand", response: "secondSuccess"};
+        const firstCommand: Command = {name: "!firstcommand", response: "firstSuccess", cooldownInSec: 2};
+        const secondCommand: Command = {name: "!secondCommand", response: "secondSuccess", cooldownInSec: 10};
         return JSON.stringify({commands: [firstCommand, secondCommand]})
     });
 
@@ -31,8 +31,10 @@ describe('Parse Command Config', () => {
         expect(command).toHaveLength(2);
         expect(command[0].name).toEqual("!firstcommand");
         expect(command[0].response).toEqual("firstSuccess");
+        expect(command[0].cooldownInSec).toEqual(2);
         expect(command[1].name).toEqual("!secondcommand");
         expect(command[1].response).toEqual("secondSuccess");
+        expect(command[1].cooldownInSec).toEqual(10);
     });
 
     it('throws error on invalid file location and returns no commands', () => {

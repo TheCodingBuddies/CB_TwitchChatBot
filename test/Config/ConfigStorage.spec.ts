@@ -5,23 +5,28 @@ import {DuplicateCommandError} from "../../src/Config/DuplicateCommandError";
 const mockParse = ((): Command[] => {
     return [{
         name: "!command",
-        response: "doMockThings"
+        response: "doMockThings",
+        cooldownInSec: 2
     }, {
         name: '!command2',
-        response: "doOtherMockThings"
+        response: "doOtherMockThings",
+        cooldownInSec: 2
     }]
 });
 
 const mockParseDuplicates = ((): Command[] => {
     return [{
         name: "!command",
-        response: "doMockThings"
+        response: "doMockThings",
+        cooldownInSec: 2
     }, {
         name: "!command",
-        response: "doMockThingsAgain"
+        response: "doMockThingsAgain",
+        cooldownInSec: 2
     }, {
         name: '!command2',
-        response: "doOtherMockThings"
+        response: "doOtherMockThings",
+        cooldownInSec: 2
     }]
 });
 
@@ -39,8 +44,8 @@ describe('ConfigStorage', () => {
         ConfigStorage.loadConfigs();
         const loadedCommands: Command[] = ConfigStorage.getCommands();
         expect(loadedCommands).toHaveLength(2);
-        expect(loadedCommands[0]).toEqual({name: "!command", response: "doMockThings"});
-        expect(loadedCommands[1]).toEqual({name: '!command2', response: "doOtherMockThings"});
+        expect(loadedCommands[0]).toEqual({name: "!command", response: "doMockThings", cooldownInSec: 2});
+        expect(loadedCommands[1]).toEqual({name: '!command2', response: "doOtherMockThings", cooldownInSec: 2});
     });
 
     it('throws DuplicateCommandError on identical command name', () => {
