@@ -1,18 +1,24 @@
 import {PrivateMessage} from "../../src/Messages/PrivateMessage";
 import {Command} from "../../src/Config/CommandParser";
 import {ConfigStorage} from "../../src/Config/ConfigStorage";
+import {CommandTimeoutList} from "../../src/Config/CommandTimeoutList";
 
+const testCommandTimoutInSec: number = 2;
 const mockGetCommand = () : Command[] => {
-    return [{name: '!dc', response: 'discordLink', cooldownInSec: 2},
-        {name: '!hello', response: 'Hi ${sender}!', cooldownInSec: 2}]
+    return [{name: '!dc', response: 'discordLink', cooldownInSec: testCommandTimoutInSec},
+        {name: '!hello', response: 'Hi ${sender}!', cooldownInSec: testCommandTimoutInSec}]
 };
 
 
 describe('Message Parser Tests', () => {
+    let timeoutList: CommandTimeoutList;
 
     beforeEach(() => {
         process.env.NICKNAME = "nickname";
         ConfigStorage.getCommands = mockGetCommand;
+        timeoutList = new CommandTimeoutList();
+        ConfigStorage.timeoutList = timeoutList;
+        Date.now = () => 1;
     })
 
     describe('parses the PrivateMessage correctly', () => {
@@ -38,9 +44,24 @@ describe('Message Parser Tests', () => {
     })
 
     describe('responding PrivateMessages', () => {
-        it('answer discord link on !dc', () => {
+        it('answer discord link on !dc when it has no timeout', () => {
             const message = new PrivateMessage(":username PRIVMSG #channel :!dc");
             expect(message.answer()).toEqual(":nickname PRIVMSG #channel :discordLink");
+        })
+
+        it('does not answer discord link on !dc when it has a timeout', () => {
+            const message = new PrivateMessage(":username PRIVMSG #channel :!dc");
+            message.answer();
+            expect(message.answer()).toEqual("");
+        })
+
+        it('answers discord link on !dc after timeout is over', () => {
+            Date.now = () => 1;
+            const messageOfUserA = new PrivateMessage(":userA PRIVMSG #channel :!dc");
+            const messageOfUserB = new PrivateMessage(":userB PRIVMSG #channel :!dc");
+            messageOfUserA.answer()
+            Date.now = () => testCommandTimoutInSec*1000 + 1;
+            expect(messageOfUserB.answer()).toEqual(":nickname PRIVMSG #channel :discordLink");
         })
 
         it('answer on command even on wrong letter cases', () => {

@@ -19,7 +19,7 @@ const mockExit = (code?: number): never => {
 describe('ChatBot', () => {
 
     beforeEach(() => {
-        ConfigStorage.loadConfigs = mockLoadConfigs;
+        ConfigStorage.loadConfig = mockLoadConfigs;
         configsLoaded = false;
         exitCode = 0;
     })
@@ -32,7 +32,7 @@ describe('ChatBot', () => {
 
         it('closes the chatbot on incorrect config', () => {
             process.exit = mockExit;
-            ConfigStorage.loadConfigs = mockLoadConfigsFails;
+            ConfigStorage.loadConfig = mockLoadConfigsFails;
             new ChatBot();
             expect(exitCode).toEqual(-1);
         });

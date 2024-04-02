@@ -24,17 +24,23 @@ export class PrivateMessage implements Message {
     }
 
     answer(): string {
-        this.username = process.env.NICKNAME;
-        return this.getAnswer();
+        ConfigStorage.timeoutList.update();
+        let answer: string = "";
+        if (!ConfigStorage.timeoutList.hasTimeout(this.content.toLowerCase())) {
+            this.username = process.env.NICKNAME;
+            answer = this.getAnswer();
+        }
+        return answer;
     }
 
     private getAnswer(): string {
-        let answer: string = "";
         const foundCommand = ConfigStorage.getCommands()
             .find(command => command.name === this.content.toLowerCase());
+        let answer: string = "";
         if (!!foundCommand) {
             const response = this.replaceSender(foundCommand.response);
             answer = `:${this.username} PRIVMSG #${this.channel} :${response}`;
+            ConfigStorage.timeoutList.add(foundCommand);
         }
         return answer;
     }

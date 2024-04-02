@@ -6,7 +6,7 @@ export class ChatBot {
 
     constructor() {
         try {
-            ConfigStorage.loadConfigs();
+            ConfigStorage.loadConfig();
         } catch (error) {
             console.error(error.message);
             process.exit(-1);

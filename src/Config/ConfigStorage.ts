@@ -1,9 +1,11 @@
 import {Command, CommandParser} from "./CommandParser";
 import {DuplicateCommandError} from "./DuplicateCommandError";
+import {CommandTimeoutList} from "./CommandTimeoutList";
 
 export class ConfigStorage {
 
     private static commands: Command[] = [];
+    static timeoutList: CommandTimeoutList;
 
     static getCommands(): Command[] {
         if (!this.commands.length) {
@@ -13,7 +15,8 @@ export class ConfigStorage {
         return this.commands;
     }
 
-    static loadConfigs() {
+    static loadConfig() {
+        this.timeoutList = new CommandTimeoutList();
         this.commands = CommandParser.parse();
         this.checkDuplicates();
     }
