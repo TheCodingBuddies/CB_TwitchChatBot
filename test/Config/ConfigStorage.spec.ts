@@ -2,16 +2,24 @@ import {ConfigStorage} from "../../src/Config/ConfigStorage";
 import {Command, CommandParser} from "../../src/Config/CommandParser";
 import {DuplicateCommandError} from "../../src/Config/DuplicateCommandError";
 
-const mockParse = ((): Command[] => {
-    return [{
-        name: "!command",
-        response: "doMockThings",
-        cooldownInSec: 2
-    }, {
-        name: '!command2',
-        response: "doOtherMockThings",
-        cooldownInSec: 2
-    }]
+let parsedCommands = [{
+    name: "!Command",
+    response: "doMockThings",
+    cooldownInSec: 2
+}, {
+    name: '!command2',
+    response: "doOtherMockThings",
+    cooldownInSec: 2
+}];
+
+const mockParseLowerCase = ((): Command[] => {
+    let lowerCaseCommands = parsedCommands.slice();
+    lowerCaseCommands[0] = {...parsedCommands[0], name: parsedCommands[0].name.toLowerCase()};
+    return lowerCaseCommands;
+});
+
+const mockParseCaseSensitive = ((): Command[] => {
+    return parsedCommands;
 });
 
 const mockParseDuplicates = ((): Command[] => {
@@ -33,7 +41,8 @@ const mockParseDuplicates = ((): Command[] => {
 describe('ConfigStorage', () => {
 
     beforeEach(() => {
-        CommandParser.parse = mockParse;
+        CommandParser.parseLowerCase = mockParseLowerCase;
+        CommandParser.parseCaseSensitive = mockParseCaseSensitive;
     })
 
     describe('load config', () => {
@@ -44,13 +53,15 @@ describe('ConfigStorage', () => {
         it('loads command config', () => {
             ConfigStorage.loadConfig();
             const loadedCommands: Command[] = ConfigStorage.getCommands();
-            expect(loadedCommands).toHaveLength(2);
+            const commandsResponse = "Verfügbare Commands: [!Command, !command2]";
+            expect(loadedCommands).toHaveLength(3);
             expect(loadedCommands[0]).toEqual({name: "!command", response: "doMockThings", cooldownInSec: 2});
             expect(loadedCommands[1]).toEqual({name: '!command2', response: "doOtherMockThings", cooldownInSec: 2});
+            expect(loadedCommands[2]).toEqual({name: '!commands', response: commandsResponse, cooldownInSec: 60});
         });
 
         it('throws DuplicateCommandError on identical command name', () => {
-            CommandParser.parse = mockParseDuplicates;
+            CommandParser.parseLowerCase = mockParseDuplicates;
             expect(() => {
                 ConfigStorage.loadConfig();
             }).toThrow(DuplicateCommandError);

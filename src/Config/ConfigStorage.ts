@@ -4,8 +4,8 @@ import {CommandTimeoutList} from "./CommandTimeoutList";
 
 export class ConfigStorage {
 
-    private static commands: Command[] = [];
     static timeoutList: CommandTimeoutList;
+    private static commands: Command[] = [];
 
     static getCommands(): Command[] {
         if (!this.commands.length) {
@@ -17,8 +17,22 @@ export class ConfigStorage {
 
     static loadConfig() {
         this.timeoutList = new CommandTimeoutList();
-        this.commands = CommandParser.parse();
+        this.commands = CommandParser.parseLowerCase();
+        this.addHelpCommand();
         this.checkDuplicates();
+    }
+
+    private static addHelpCommand() {
+        let help: Command = {
+            name: '!commands',
+            response: 'Verfügbare Commands: ['
+                + CommandParser.parseCaseSensitive()
+                    .map(value => value.name)
+                    .join(', ')
+                + "]",
+            cooldownInSec: 60
+        }
+        this.commands.push(help);
     }
 
     private static checkDuplicates() {
