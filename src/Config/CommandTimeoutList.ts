@@ -1,15 +1,19 @@
-import {Command} from "./CommandParser";
+import {Command, CommandScope} from "./CommandParser";
 
 export class CommandTimeoutList {
+
+    private readonly keySeparator = '#';
+
     private entries: Map<string, number> = new Map<string, number>();
 
     constructor() {
 
     }
 
-    add(command: Command) {
-        if (!this.entries.has(command.name))
-            this.entries.set(command.name, Date.now() + (command.cooldownInSec * 1000));
+    add(command: Command, user: string) {
+        const key = this.createKey(command, user);
+        if (!this.entries.has(key))
+            this.entries.set(key, Date.now() + (command.cooldownInSec * 1000));
     }
 
     update() {
@@ -20,15 +24,22 @@ export class CommandTimeoutList {
         }
     }
 
-    hasTimeout(name: string): boolean {
-        return this.entries.has(name);
+    hasTimeout(command: Command, user: string): boolean {
+        const key = this.createKey(command, user);
+        return this.entries.has(key);
     }
 
     count(): number {
         return this.entries.size;
     }
 
-    untilFor(name: string) : number {
-        return this.entries.get(name);
+    untilFor(command: Command, user: string): number {
+        const key = this.createKey(command, user);
+        return this.entries.get(key);
+    }
+
+    private createKey(command: Command, user: string): string {
+        const suffix = (!!user && command.scope == CommandScope.USER) ? user : 'global';
+        return `${command.name}${this.keySeparator}${suffix}`;
     }
 }

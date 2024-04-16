@@ -1,4 +1,4 @@
-import {Command, CommandParser} from "../../src/Config/CommandParser";
+import {Command, CommandParser, CommandScope} from "../../src/Config/CommandParser";
 
 let loadFileFailed = false;
 
@@ -7,8 +7,8 @@ jest.mock('fs', () => {
         if (loadFileFailed) {
             throw new Error("File not found");
         }
-        const firstCommand: Command = {name: "!firstcommand", response: "firstSuccess", cooldownInSec: 2};
-        const secondCommand: Command = {name: "!secondCommand", response: "secondSuccess", cooldownInSec: 10};
+        const firstCommand: Command = {name: "!firstcommand", response: "firstSuccess", cooldownInSec: 2, scope: CommandScope.USER};
+        const secondCommand: Command = {name: "!secondCommand", response: "secondSuccess", cooldownInSec: 10, scope: CommandScope.GLOBAL};
         return JSON.stringify({commands: [firstCommand, secondCommand]})
     });
 
@@ -32,9 +32,11 @@ describe('Parse Command Config', () => {
         expect(command[0].name).toEqual("!firstcommand");
         expect(command[0].response).toEqual("firstSuccess");
         expect(command[0].cooldownInSec).toEqual(2);
+        expect(command[0].scope).toEqual(CommandScope.USER);
         expect(command[1].name).toEqual("!secondcommand");
         expect(command[1].response).toEqual("secondSuccess");
         expect(command[1].cooldownInSec).toEqual(10);
+        expect(command[1].scope).toEqual(CommandScope.GLOBAL);
     });
 
     it('throws error on invalid file location and returns no commands', () => {

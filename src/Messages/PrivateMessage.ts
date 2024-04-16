@@ -2,6 +2,7 @@ import {ConfigStorage} from "../Config/ConfigStorage";
 
 export class PrivateMessage implements Message {
     username: string;
+    botName: string;
     author: string;
     channel: string;
     content: string;
@@ -14,6 +15,7 @@ export class PrivateMessage implements Message {
             this.author = this.username;
             this.channel = parts[2].slice(1);
             this.content = content.slice(1);
+            this.botName = process.env.NICKNAME;
         } catch (e) {
             throw new Error("Message incomplete");
         }
@@ -25,22 +27,15 @@ export class PrivateMessage implements Message {
 
     answer(): string {
         ConfigStorage.timeoutList.update();
-        let answer: string = "";
-        if (!ConfigStorage.timeoutList.hasTimeout(this.content.toLowerCase())) {
-            this.username = process.env.NICKNAME;
-            answer = this.getAnswer();
-        }
-        return answer;
-    }
-
-    private getAnswer(): string {
         const foundCommand = ConfigStorage.getCommands()
             .find(command => command.name === this.content.toLowerCase());
         let answer: string = "";
         if (!!foundCommand) {
-            const response = this.replaceSender(foundCommand.response);
-            answer = `:${this.username} PRIVMSG #${this.channel} :${response}`;
-            ConfigStorage.timeoutList.add(foundCommand);
+            if (!ConfigStorage.timeoutList.hasTimeout(foundCommand, this.username)) {
+                const response = this.replaceSender(foundCommand.response);
+                answer = `:${this.botName} PRIVMSG #${this.channel} :${response}`;
+                ConfigStorage.timeoutList.add(foundCommand, this.username);
+            }
         }
         return answer;
     }

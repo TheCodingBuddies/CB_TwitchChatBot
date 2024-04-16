@@ -1,4 +1,4 @@
-import {Command, CommandParser} from "./CommandParser";
+import {Command, CommandParser, CommandScope} from "./CommandParser";
 import {DuplicateCommandError} from "./DuplicateCommandError";
 import {CommandTimeoutList} from "./CommandTimeoutList";
 
@@ -30,7 +30,8 @@ export class ConfigStorage {
                     .map(value => value.name)
                     .join(', ')
                 + "]",
-            cooldownInSec: 60
+            cooldownInSec: 60,
+            scope: CommandScope.GLOBAL
         }
         this.commands.push(help);
     }

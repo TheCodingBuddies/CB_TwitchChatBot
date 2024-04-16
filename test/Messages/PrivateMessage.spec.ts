@@ -1,12 +1,12 @@
 import {PrivateMessage} from "../../src/Messages/PrivateMessage";
-import {Command} from "../../src/Config/CommandParser";
+import {Command, CommandScope} from "../../src/Config/CommandParser";
 import {ConfigStorage} from "../../src/Config/ConfigStorage";
 import {CommandTimeoutList} from "../../src/Config/CommandTimeoutList";
 
 const testCommandTimoutInSec: number = 2;
 const mockGetCommand = () : Command[] => {
-    return [{name: '!dc', response: 'discordLink', cooldownInSec: testCommandTimoutInSec},
-        {name: '!hello', response: 'Hi ${sender}!', cooldownInSec: testCommandTimoutInSec}]
+    return [{name: '!dc', response: 'discordLink', cooldownInSec: testCommandTimoutInSec, scope: CommandScope.GLOBAL},
+        {name: '!hello', response: 'Hi ${sender}!', cooldownInSec: testCommandTimoutInSec, scope: CommandScope.GLOBAL}]
 };
 
 

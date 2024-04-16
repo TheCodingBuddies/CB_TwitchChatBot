@@ -1,10 +1,15 @@
 import {readFileSync} from "fs";
 
+export enum CommandScope {
+    USER = 'user',
+    GLOBAL = 'global'
+}
 
 export interface Command {
     name: string,
     response: string,
     cooldownInSec: number,
+    scope: CommandScope
 }
 
 export interface CommandCollection {
@@ -18,13 +23,24 @@ export class CommandParser {
     static parseLowerCase(): Command[] {
         let collection = this.parse();
         return collection.commands.map(cmd => {
-            return {name: cmd.name.toLowerCase(), response: cmd.response, cooldownInSec: cmd.cooldownInSec}
+            return {
+                name: cmd.name.toLowerCase(),
+                response: cmd.response,
+                cooldownInSec: cmd.cooldownInSec,
+                scope: cmd.scope
+            }
         });
     }
+
     static parseCaseSensitive(): Command[] {
         let collection = this.parse();
         return collection.commands.map(cmd => {
-            return {name: cmd.name, response: cmd.response, cooldownInSec: cmd.cooldownInSec}
+            return {
+                name: cmd.name,
+                response: cmd.response,
+                cooldownInSec: cmd.cooldownInSec,
+                scope: cmd.scope
+            }
         });
     }
 
