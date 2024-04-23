@@ -1,4 +1,5 @@
 import {ConfigStorage} from "../Config/ConfigStorage";
+import {PlaceHolderTransformer} from "./PlaceHolderTransformer";
 
 export class PrivateMessage implements Message {
     username: string;
@@ -32,15 +33,12 @@ export class PrivateMessage implements Message {
         let answer: string = "";
         if (!!foundCommand) {
             if (!ConfigStorage.timeoutList.hasTimeout(foundCommand, this.username)) {
-                const response = this.replaceSender(foundCommand.response);
+                let transformer = new PlaceHolderTransformer(foundCommand.response, this.author);
+                const response = transformer.transform();
                 answer = `:${this.botName} PRIVMSG #${this.channel} :${response}`;
                 ConfigStorage.timeoutList.add(foundCommand, this.username);
             }
         }
         return answer;
-    }
-
-    private replaceSender(response: string): string {
-        return response.replace('${sender}', this.author);
     }
 }
