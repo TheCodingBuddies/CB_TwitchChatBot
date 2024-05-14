@@ -1,5 +1,6 @@
 import {ConfigStorage} from "../Config/ConfigStorage";
 import {PlaceHolderTransformer} from "./PlaceHolderTransformer";
+import {Command} from "../Config/CommandParser";
 
 export class PrivateMessage implements Message {
     username: string;
@@ -28,15 +29,20 @@ export class PrivateMessage implements Message {
 
     answer(): string {
         ConfigStorage.timeoutList.update();
-        const foundCommand = ConfigStorage.getCommands()
-            .find(command => command.name === this.content.toLowerCase());
+        const foundCommand: Command = ConfigStorage.getCommands()
+            .find(command => command.name.split(' ')[0] === this.content.toLowerCase().split(' ')[0]);
         let answer: string = "";
         if (!!foundCommand) {
-            if (!ConfigStorage.timeoutList.hasTimeout(foundCommand, this.username)) {
-                let transformer = new PlaceHolderTransformer(foundCommand.response, this.author);
-                const response = transformer.transform();
-                answer = `:${this.botName} PRIVMSG #${this.channel} :${response}`;
-                ConfigStorage.timeoutList.add(foundCommand, this.username);
+            let transformer = new PlaceHolderTransformer(this.author);
+            try {
+                transformer.extractParams(this.content, foundCommand.name);
+                if (!ConfigStorage.timeoutList.hasTimeout(foundCommand, this.username)) {
+                    const response = transformer.transform(foundCommand.response);
+                    answer = `:${this.botName} PRIVMSG #${this.channel} :${response}`;
+                    ConfigStorage.timeoutList.add(foundCommand, this.username);
+                }
+            } catch (e) {
+
             }
         }
         return answer;
