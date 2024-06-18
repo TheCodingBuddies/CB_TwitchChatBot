@@ -1,12 +1,20 @@
 import {MessageFactory} from "../../src/Messages/MessageFactory";
-import {PrivateMessage} from "../../src/Messages/PrivateMessage";
+import {CommandMessage} from "../../src/Messages/CommandMessage";
 import {PingMessage} from "../../src/Messages/PingMessage";
 import {UnknownMessage} from "../../src/Messages/UnknownMessage";
+import {VoteMessage} from "../../src/Messages/VoteMessage";
 
 describe('return correct messages', () => {
-    it('returns PrivateMessage on Command PRIVMSG', () => {
+    it('returns CommandMessage on Command PRIVMSG', () => {
         expect(MessageFactory.parse("user PRIVMSG #channel :content")
-            instanceof PrivateMessage).toBeTruthy();
+            instanceof CommandMessage).toBeTruthy();
+    });
+
+    it('returns VoteMessage on Command PRIVMSG with valid vote command', () => {
+        expect(MessageFactory.parse("user PRIVMSG #channel :!vote")
+            instanceof VoteMessage).toBeTruthy();
+        expect(MessageFactory.parse("user PRIVMSG #channel :!vote-start")
+            instanceof VoteMessage).toBeTruthy();
     });
 
     it('returns PingMessage on Command PING', () => {

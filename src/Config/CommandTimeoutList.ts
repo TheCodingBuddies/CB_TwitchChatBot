@@ -39,7 +39,7 @@ export class CommandTimeoutList {
     }
 
     private createKey(command: Command, user: string): string {
-        const suffix = (!!user && command.scope == CommandScope.USER) ? user : 'global';
+        const suffix = (!!user && command.scope === CommandScope.USER) ? user : 'global';
         return `${command.name}${this.keySeparator}${suffix}`;
     }
 }
