@@ -28,7 +28,18 @@ describe("VotingService", () => {
         expect(VotingService.isActive(sessionName)).toBeFalsy();
     });
 
-    describe('Voting on Sessions', () => {
+    it('started default session and wrote correct summary', () => {
+        const durationInMs: number = 60000;
+        VotingService.start("default", durationInMs, ["A", "B"]);
+        tick(durationInMs);
+
+        VotingService.recentResult.on("lastVoteResult", (res) => {
+            expect(res).toEqual("Voting beendet! Option A hat gewonnen!");
+        });
+
+    });
+
+    describe('Voting on specific sessions', () => {
         it('first option (A) wins the session without voting', () => {
             const durationInMs = 60000;
             startTestSession(durationInMs);

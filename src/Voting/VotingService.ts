@@ -66,6 +66,7 @@ export class VotingService {
     }
 
     private static summaryOf(id: string, session: VoteSession): string {
-        return `Voting ${id} beendet! Option ${session.options[0].name} hat gewonnen!`
+        const summaryMessage: string = (id !== "default") ? `Voting ${id} beendet` : `Voting beendet`
+        return `${summaryMessage}! Option ${session.options[0].name} hat gewonnen!`
     }
 }
