@@ -9,6 +9,7 @@ describe("VotingService", () => {
     afterEach(() => {
         jest.useRealTimers();
         VotingService.recentResult.removeAllListeners();
+        VotingService.voteReminder.removeAllListeners();
     });
 
     it('started session is active', () => {
@@ -116,6 +117,17 @@ describe("VotingService", () => {
             });
             tick(durationInMs);
         });
+    });
+
+    it('reminds to vote when 20 seconds left', () => {
+        const durationInMs: number = 60000;
+        VotingService.start("FirstSession", durationInMs, ["A", "B"]);
+
+        VotingService.voteReminder.on("VoteReminder", (res) => {
+            expect(res).toEqual("Voting Session FirstSession endet in 20 Sekunden!");
+        });
+
+        tick(durationInMs - 20001);
     });
 
     function startTestSession(durationInMs: number) {

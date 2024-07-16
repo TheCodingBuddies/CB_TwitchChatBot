@@ -15,8 +15,9 @@ interface VoteSession {
 export class VotingService {
 
     static sessions: Map<string, VoteSession> = new Map<string, VoteSession>();
-    static readonly REMINDER_COUNT = 4;
+    static readonly REMINDER_20_SECS = 20000;
     static recentResult: EventEmitter = new EventEmitter();
+    static voteReminder: EventEmitter = new EventEmitter();
 
     static vote(user: string, id: string, choseOption: string) {
         const session: VoteSession = this.sessions.get(id);
@@ -33,23 +34,24 @@ export class VotingService {
         }
     }
 
-    static start(id: string, duration: number, options: string[]): void {
-        const reminderTime = duration / this.REMINDER_COUNT;
+    static start(id: string, durationInMs: number, options: string[]): void {
+        const reminderTime = durationInMs - this.REMINDER_20_SECS;
 
         setTimeout(() => {
             this.onFinish(id);
-        }, duration);
+        }, durationInMs);
 
         const interval: NodeJS.Timeout = setInterval(() => {
-            this.remindToVote();
+            this.remindToVote(id);
         }, reminderTime);
 
         const voteOptions: VoteOption[] = options.map(o => ({name: o, count: 0}));
-        this.sessions.set(id, {duration: duration, options: voteOptions, interval: interval, participants: []});
+        this.sessions.set(id, {duration: durationInMs, options: voteOptions, interval: interval, participants: []});
     }
 
-    static remindToVote() {
-        /* ToDo: send reminder with client */
+    static remindToVote(id: string) {
+        const remindMessage = `Voting Session ${id} endet in 20 Sekunden!`;
+        this.voteReminder.emit("VoteReminder", remindMessage);
     }
 
     static isActive(id: string): boolean {

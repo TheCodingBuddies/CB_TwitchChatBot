@@ -22,7 +22,8 @@ export class VoteMessage implements Message {
 
     /*
         ToDo:
-        - remind vote session is nearly over
+        - help answer on wrong vote commands?
+        - highlight vote name
         - Make Vote duration configurable
         - only host is able to start vote? (and mods?)
      */
@@ -30,8 +31,7 @@ export class VoteMessage implements Message {
         this.type = this.getType(message);
         if (this.type === VoteType.UNKNOWN)
             return;
-
-        let parts: string[] = message.split(' ');
+        let parts: string[] = message.match(/("[^"]+"|\[[^\]]+\]|\S+)/g);
         this.votingUsername = VoteMessage.extractUsername(parts[0]);
         this.command = VoteMessage.extractCommand(parts);
         this.sessionName = this.extractSessionName(parts);
@@ -62,9 +62,9 @@ export class VoteMessage implements Message {
             : "";
     }
 
-    private extractVoteOptions(parts: string[]) {
+    private extractVoteOptions(parts: string[]): string[] {
         const optionsIdx = (this.type === VoteType.START_VOTE) ? 5 : 4;
-        return parts[optionsIdx].trim().slice(1, parts[optionsIdx].length - 1).split(",");
+        return parts[optionsIdx].slice(1, parts[optionsIdx].length - 1).split(",").map(ops => ops.trim());
     }
 
     private extractChooseOption(parts: string[]) {

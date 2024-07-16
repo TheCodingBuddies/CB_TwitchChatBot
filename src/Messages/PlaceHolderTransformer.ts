@@ -7,7 +7,7 @@ export class PlaceHolderTransformer {
     }
 
     extractParams(command: string, template: string) {
-        let commandWords = command.split(" ");
+        let commandWords = command.match(/("[^"]+"|\S+)/g);
         let templateWords = template.split(" ");
         if (commandWords.length !== templateWords.length)
             throw new Error("Extract params failed");

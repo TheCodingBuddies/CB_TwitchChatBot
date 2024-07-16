@@ -35,6 +35,13 @@ describe('PlaceHolderTransformer', () => {
                 placeHolderTransformer.extractParams("!static hello world", "!static ${param1} ${param2}")
             }).not.toThrow();
         });
+
+        it('extract params successfully even if a param is a sentence', () => {
+            placeHolderTransformer = new PlaceHolderTransformer("user");
+            expect(() => {
+                placeHolderTransformer.extractParams("!static \"hello world\" \"param nummer 2\"", "!static ${param1} ${param2}")
+            }).not.toThrow();
+        });
     });
 
     describe('response', () => {

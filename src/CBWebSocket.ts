@@ -7,6 +7,7 @@ export class CBWebSocket {
 
     readonly TWITCH_CHANNEL = "ws://irc-ws.chat.twitch.tv:80";
     readonly LAST_VOTE_RESULT = "lastVoteResult";
+    readonly VOTE_REMINDER = "VoteReminder";
     client: WebSocket;
     channel: string;
 
@@ -17,9 +18,12 @@ export class CBWebSocket {
         this.registerVotingListener();
     }
 
-    private registerVotingListener() : void {
+    private registerVotingListener(): void {
         VotingService.recentResult.on(this.LAST_VOTE_RESULT, (result: string) => {
             this.client.send(new PrivateMessage(result).content);
+        });
+        VotingService.voteReminder.on(this.VOTE_REMINDER, (reminderMessage: string) => {
+            this.client.send(new PrivateMessage(reminderMessage).content);
         });
     }
 
