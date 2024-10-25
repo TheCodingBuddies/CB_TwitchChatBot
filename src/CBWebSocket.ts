@@ -42,8 +42,10 @@ export class CBWebSocket {
         this.client.on("message", (data: RawData) => {
             const rawMessages: string[] = data.toString().split('\r\n');
             for (let rawMessage of rawMessages) {
-                let message: Message = MessageFactory.parse(rawMessage);
-                this.client.send(message.answer());
+                if (rawMessage.trim().length > 0) {
+                    let message: Message = MessageFactory.parse(rawMessage);
+                    this.client.send(message.answer());
+                }
             }
         })
     }
