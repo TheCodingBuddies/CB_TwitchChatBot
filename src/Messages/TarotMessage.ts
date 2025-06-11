@@ -1,6 +1,7 @@
 import {PrivateMessage} from "./PrivateMessage";
 import * as http from "http";
 import {RequestOptions} from "http";
+import axios from "axios";
 
 export class TarotMessage implements Message {
     username: string;
@@ -14,19 +15,19 @@ export class TarotMessage implements Message {
         return fullName.split("!")[0].slice(1);
     }
 
-    private startTarot() {
-        const options: RequestOptions = {
-            hostname: 'localhost',
-            port: 8080,
-            path: '/start',
-            method: 'POST'
+    private async startTarot() {
+        try {
+            const res = await axios.post('http://localhost:8080/start')
+            console.log(res.data)
+        } catch (e) {
+            console.log('This is the error: ', e);
         }
-        http.request(options);
+
         /* ToDo: check error case */
     }
 
     answer(): string {
-        this.startTarot();
+        this.startTarot().then();
         const answer = `Deine Tech-Zukunft erfährst du jetzt ${this.username}!`;
         return new PrivateMessage(answer).content;
     }

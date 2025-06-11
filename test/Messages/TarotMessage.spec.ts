@@ -1,7 +1,7 @@
 import {TarotMessage} from "../../src/Messages/TarotMessage";
-import * as http from 'http';
+import axios from "axios";
 
-jest.mock('http');
+jest.mock('axios');
 
 describe('TarotMessage', () => {
 
@@ -21,19 +21,12 @@ describe('TarotMessage', () => {
     describe('sending REST calls to the Tarot Backend', () => {
         it('starts a new tarot game via REST', () => {
             const msg = new TarotMessage("");
-            const requestSpy = jest.spyOn(http, "request").mockImplementation((options) => {
+            const requestSpy = jest.spyOn(axios, "post").mockImplementation((url) => {
                 return {} as any;
             });
             msg.answer();
 
-            expect(requestSpy).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    hostname: 'localhost',
-                    port: 8080,
-                    path: '/start',
-                    method: 'POST'
-                })
-            );
+            expect(requestSpy).toHaveBeenCalledWith("http://localhost:8080/start");
 
             requestSpy.mockRestore();
         });
