@@ -1,7 +1,7 @@
-import WebSocket, {RawData} from "ws"
-import {MessageFactory} from "./Messages/MessageFactory";
-import {VotingService} from "./Voting/VotingService";
-import {PrivateMessage} from "./Messages/PrivateMessage";
+import WebSocket, { RawData } from "ws";
+import { MessageFactory } from "./Messages/MessageFactory";
+import { PrivateMessage } from "./Messages/PrivateMessage";
+import { VotingService } from "./Voting/VotingService";
 
 export class CBWebSocket {
 
@@ -30,8 +30,8 @@ export class CBWebSocket {
     private registerListener() {
         this.client.on("open", () => {
             this.client.send(`CAP REQ :twitch.tv/commands`);
-            this.client.send(`PASS oauth:${process.env.TOKEN}`);
-            this.client.send(`NICK ${process.env.NICKNAME}`);
+            this.client.send(`PASS oauth:${process.env.TWITCH_BOT_OAUTH_TOKEN}`);
+            this.client.send(`NICK ${process.env.TWITCH_BOT_USERNAME}`);
             this.client.send(`JOIN #${this.channel}`);
         });
 

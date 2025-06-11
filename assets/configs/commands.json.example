@@ -1,0 +1,16 @@
+{
+  "commands": [
+    {
+      "name": "!hello",
+      "response": "Hello, world!",
+      "cooldownInSec": 5,
+      "scope": "user"
+    },
+    {
+      "name": "!greet",
+      "response": "Hey there, ${sender}! Thanks for stopping by!",
+      "cooldownInSec": 10,
+      "scope": "global"
+    }
+  ]
+}

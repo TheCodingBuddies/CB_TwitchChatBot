@@ -1,10 +1,10 @@
-import {VoteMessage} from "../../src/Messages/VoteMessage";
-import {VotingService} from "../../src/Voting/VotingService";
+import { VoteMessage } from "../../src/Messages/VoteMessage";
+import { VotingService } from "../../src/Voting/VotingService";
 
 describe('VoteMessage', () => {
 
     beforeEach(() => {
-        process.env.NICKNAME = "nickname";
+        process.env.TWITCH_BOT_USERNAME = "nickname";
         process.env.CHANNEL = "thecodingbuddies";
     })
 

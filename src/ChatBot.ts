@@ -1,5 +1,5 @@
-import {CBWebSocket} from "./CBWebSocket";
-import {ConfigStorage} from "./Config/ConfigStorage";
+import { CBWebSocket } from "./CBWebSocket";
+import { ConfigStorage } from "./Config/ConfigStorage";
 
 export class ChatBot {
     private socket: CBWebSocket;
@@ -11,6 +11,6 @@ export class ChatBot {
             console.error(error.message);
             process.exit(-1);
         }
-        this.socket = new CBWebSocket("thecodingbuddies");
+        this.socket = new CBWebSocket(`${process.env.TWITCH_CHANNEL_NAME}`);
     }
 }

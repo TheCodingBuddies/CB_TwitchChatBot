@@ -1,7 +1,7 @@
-import {CommandMessage} from "../../src/Messages/CommandMessage";
-import {Command, CommandScope} from "../../src/Config/CommandParser";
-import {ConfigStorage} from "../../src/Config/ConfigStorage";
-import {CommandTimeoutList} from "../../src/Config/CommandTimeoutList";
+import { Command, CommandScope } from "../../src/Config/CommandParser";
+import { CommandTimeoutList } from "../../src/Config/CommandTimeoutList";
+import { ConfigStorage } from "../../src/Config/ConfigStorage";
+import { CommandMessage } from "../../src/Messages/CommandMessage";
 
 const testCommandTimoutInSec: number = 2;
 const mockGetCommand = (): Command[] => {
@@ -38,7 +38,7 @@ describe('CommandMessageTest', () => {
     let timeoutList: CommandTimeoutList;
 
     beforeEach(() => {
-        process.env.NICKNAME = "nickname";
+        process.env.TWITCH_BOT_USERNAME = "nickname";
         process.env.CHANNEL = "channel";
         ConfigStorage.getCommands = mockGetCommand;
         timeoutList = new CommandTimeoutList();

@@ -1,7 +1,7 @@
-import {CommandMessage} from "./CommandMessage";
-import {PingMessage} from "./PingMessage";
-import {UnknownMessage} from "./UnknownMessage";
-import {VoteMessage} from "./VoteMessage";
+import { CommandMessage } from "./CommandMessage";
+import { PingMessage } from "./PingMessage";
+import { UnknownMessage } from "./UnknownMessage";
+import { VoteMessage } from "./VoteMessage";
 
 const voteCommandIdentifier: string[] = [":!vote", ":!vote-start"];
 

@@ -1,4 +1,4 @@
-import {VotingService} from "../Voting/VotingService";
+import { VotingService } from "../Voting/VotingService";
 
 enum VoteType {
     START_DEFAULT_VOTE,
@@ -58,7 +58,7 @@ export class VoteMessage implements Message {
         }
         const chatBotResponse: string = (this.sessionName !== "default") ? `${this.sessionName} started` : "started";
         return (this.isStartVoteType())
-            ? `:${process.env.NICKNAME} PRIVMSG #${process.env.CHANNEL} :Voting ${chatBotResponse}! Options are ${this.options}`
+            ? `:${process.env.TWITCH_BOT_USERNAME} PRIVMSG #${process.env.TWITCH_CHANNEL_NAME} :Voting ${chatBotResponse}! Options are ${this.options}`
             : "";
     }
 

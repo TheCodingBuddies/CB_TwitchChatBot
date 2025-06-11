@@ -1,7 +1,7 @@
-import {ConfigStorage} from "../Config/ConfigStorage";
-import {PlaceHolderTransformer} from "./PlaceHolderTransformer";
-import {Command} from "../Config/CommandParser";
-import {PrivateMessage} from "./PrivateMessage";
+import { Command } from "../Config/CommandParser";
+import { ConfigStorage } from "../Config/ConfigStorage";
+import { PlaceHolderTransformer } from "./PlaceHolderTransformer";
+import { PrivateMessage } from "./PrivateMessage";
 
 export class CommandMessage implements Message {
     username: string;
@@ -18,7 +18,7 @@ export class CommandMessage implements Message {
             this.author = this.username;
             this.channel = parts[2].slice(1);
             this.content = content.slice(1);
-            this.botName = process.env.NICKNAME;
+            this.botName = process.env.TWITCH_BOT_USERNAME;
         } catch (e) {
             throw new Error("Message incomplete");
         }

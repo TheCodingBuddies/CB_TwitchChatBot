@@ -1,8 +1,8 @@
-import {PrivateMessage} from "../../src/Messages/PrivateMessage";
+import { PrivateMessage } from "../../src/Messages/PrivateMessage";
 
 describe('PrivateMessage', () => {
     beforeEach(() => {
-        process.env.NICKNAME = 'botName';
+        process.env.TWITCH_BOT_USERNAME = 'botName';
         process.env.CHANNEL = 'ourChannel';
     })
 
