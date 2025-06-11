@@ -3,6 +3,7 @@ import {CommandMessage} from "../../src/Messages/CommandMessage";
 import {PingMessage} from "../../src/Messages/PingMessage";
 import {UnknownMessage} from "../../src/Messages/UnknownMessage";
 import {VoteMessage} from "../../src/Messages/VoteMessage";
+import {TarotMessage} from "../../src/Messages/TarotMessage";
 
 describe('return correct messages', () => {
     it('returns CommandMessage on Command PRIVMSG', () => {
@@ -15,6 +16,13 @@ describe('return correct messages', () => {
             instanceof VoteMessage).toBeTruthy();
         expect(MessageFactory.parse("user PRIVMSG #channel :!vote-start")
             instanceof VoteMessage).toBeTruthy();
+    });
+
+    it('returns TarotMessage on Command PRIVMSG with valid tech tarot command', () => {
+        expect(MessageFactory.parse("user PRIVMSG #channel :!tech-tarot")
+            instanceof TarotMessage).toBeTruthy();
+        expect(MessageFactory.parse("user PRIVMSG #channel :!tt")
+            instanceof TarotMessage).toBeTruthy();
     });
 
     it('returns PingMessage on Command PING', () => {

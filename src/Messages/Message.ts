@@ -1,3 +1,3 @@
 abstract class Message {
-    abstract answer();
+    abstract answer() : string;
 }
