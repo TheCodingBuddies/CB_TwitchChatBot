@@ -1,4 +1,5 @@
 import {VotingService} from "../Voting/VotingService";
+import {RawMessage} from "./RawMessage";
 
 enum VoteType {
     START_DEFAULT_VOTE,
@@ -10,7 +11,7 @@ enum VoteType {
 
 export class VoteMessage implements Message {
     votingUsername: string;
-    command: string = "";
+    voteCommand: string = "";
     sessionName: string;
     options: string[];
     type: VoteType = VoteType.UNKNOWN;
@@ -27,13 +28,13 @@ export class VoteMessage implements Message {
         - Make Vote duration configurable
         - only host is able to start vote? (and mods?)
      */
-    constructor(message: string) {
-        this.type = this.getType(message);
+    constructor(message: RawMessage) {
+        this.type = this.getType(message.content.message);
         if (this.type === VoteType.UNKNOWN)
             return;
-        let parts: string[] = message.match(/("[^"]+"|\[[^\]]+\]|\S+)/g);
-        this.votingUsername = VoteMessage.extractUsername(parts[0]);
-        this.command = VoteMessage.extractCommand(parts);
+        let parts: string[] = message.content.message.match(/("[^"]+"|\[[^\]]+\]|\S+)/g);
+        this.votingUsername = message.content.prefix.nickname;
+        this.voteCommand = parts[0];
         this.sessionName = this.extractSessionName(parts);
         if (this.isStartVoteType()) {
             this.options = this.extractVoteOptions(parts);
@@ -42,14 +43,6 @@ export class VoteMessage implements Message {
             const option: string = this.extractChooseOption(parts);
             VotingService.vote(this.votingUsername, this.sessionName, option);
         }
-    }
-
-    private static extractCommand(parts: string[]) {
-        return parts[3].slice(1);
-    }
-
-    private static extractUsername(part: string) {
-        return part.split("!")[0].slice(1);
     }
 
     answer(): string {
@@ -63,24 +56,22 @@ export class VoteMessage implements Message {
     }
 
     private extractVoteOptions(parts: string[]): string[] {
-        const optionsIdx = (this.type === VoteType.START_VOTE) ? 5 : 4;
+        const optionsIdx = (this.type === VoteType.START_VOTE) ? 2 : 1;
         return parts[optionsIdx].slice(1, parts[optionsIdx].length - 1).split(",").map(ops => ops.trim());
     }
 
     private extractChooseOption(parts: string[]) {
-        const optionsIdx = (this.type === VoteType.VOTE) ? 5 : 4;
+        const optionsIdx = (this.type === VoteType.VOTE) ? 2 : 1;
         return parts[optionsIdx];
     }
 
     private extractSessionName(parts: string[]) {
         return (this.type === VoteType.VOTE
             || this.type === VoteType.START_VOTE)
-            ? parts[4] : "default";
+            ? parts[1] : "default";
     }
 
-    private getType(message: string): VoteType {
-        const parts = message.split(" ");
-        const voteMessage = parts.splice(3).join(" ").slice(1);
+    private getType(voteMessage: string): VoteType {
         if (this.START_DEFAULT_VOTE_PATTERN.test(voteMessage))
             return VoteType.START_DEFAULT_VOTE;
         if (this.START_VOTE_PATTERN.test(voteMessage))

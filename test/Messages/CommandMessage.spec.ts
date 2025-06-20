@@ -2,6 +2,7 @@ import {CommandMessage} from "../../src/Messages/CommandMessage";
 import {Command, CommandScope} from "../../src/Config/CommandParser";
 import {ConfigStorage} from "../../src/Config/ConfigStorage";
 import {CommandTimeoutList} from "../../src/Config/CommandTimeoutList";
+import {RawMessage} from "../../src/Messages/RawMessage";
 
 const testCommandTimoutInSec: number = 2;
 const mockGetCommand = (): Command[] => {
@@ -48,80 +49,108 @@ describe('CommandMessageTest', () => {
 
     describe('parses the CommandMessage correctly', () => {
         it('parses the correct user name', () => {
-            const message = new CommandMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :content");
+            const rawData = ":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :content";
+            const rawMessage = new RawMessage(rawData);
+            const message = new CommandMessage(rawMessage);
             expect(message.username).toEqual("user123");
         });
 
         it('parses the correct channel', () => {
-            const message = new CommandMessage(":username PRIVMSG #channel :content");
+            const rawData = ":username!username@username.tmi.twitch.tv PRIVMSG #channel :content";
+            const rawMessage = new RawMessage(rawData);
+            const message = new CommandMessage(rawMessage);
             expect(message.channel).toEqual("channel");
         });
 
         it('parses the correct text', () => {
-            const message = new CommandMessage(":username PRIVMSG #channel :contentPart1 contentPart2");
+            const rawData = ":username!username@username.tmi.twitch.tv PRIVMSG #channel :contentPart1 contentPart2";
+            const rawMessage = new RawMessage(rawData);
+            const message = new CommandMessage(rawMessage);
             expect(message.content).toEqual("contentPart1 contentPart2");
         });
 
         it('parses !dc command', () => {
-            const message = new CommandMessage(":username PRIVMSG #channel :!dc");
+            const rawData = ":username!username@username.tmi.twitch.tv PRIVMSG #channel :!dc";
+            const rawMessage = new RawMessage(rawData);
+            const message = new CommandMessage(rawMessage);
             expect(message.content).toEqual("!dc");
         });
     })
 
     describe('responding PrivateMessages', () => {
         it('answer discord link on !dc when it has no timeout', () => {
-            const message = new CommandMessage(":username PRIVMSG #channel :!dc");
+            const rawData = ":username!username@username.tmi.twitch.tv PRIVMSG #channel :!dc";
+            const rawMessage = new RawMessage(rawData);
+            const message = new CommandMessage(rawMessage);
             expect(message.answer()).toEqual(":nickname PRIVMSG #channel :discordLink");
         })
 
         it('does not answer discord link on !dc when it has a timeout', () => {
-            const message = new CommandMessage(":username PRIVMSG #channel :!dc");
+            const rawData = ":username!username@username.tmi.twitch.tv PRIVMSG #channel :!dc";
+            const rawMessage = new RawMessage(rawData);
+            const message = new CommandMessage(rawMessage);
             message.answer();
             expect(message.answer()).toEqual("");
         })
 
         it('answers discord link on !dc after timeout is over', () => {
             Date.now = () => 1;
-            const messageOfUserA = new CommandMessage(":userA PRIVMSG #channel :!dc");
-            const messageOfUserB = new CommandMessage(":userB PRIVMSG #channel :!dc");
+            const rawDataA = ":userA!userA@userA.tmi.twitch.tv PRIVMSG #channel :!dc";
+            const rawMessageA = new RawMessage(rawDataA);
+            const messageOfUserA = new CommandMessage(rawMessageA);
+            const rawDataB = ":userB!userB@userB.tmi.twitch.tv PRIVMSG #channel :!dc";
+            const rawMessageB = new RawMessage(rawDataB);
+            const messageOfUserB = new CommandMessage(rawMessageB);
             messageOfUserA.answer()
             Date.now = () => testCommandTimoutInSec * 1000 + 1;
             expect(messageOfUserB.answer()).toEqual(":nickname PRIVMSG #channel :discordLink");
         })
 
         it('answer on command even on wrong letter cases', () => {
-            const message = new CommandMessage(":username PRIVMSG #channel :!Dc");
+            const rawData = ":username!username@username.tmi.twitch.tv PRIVMSG #channel :!Dc";
+            const rawMessage = new RawMessage(rawData);
+            const message = new CommandMessage(rawMessage);
             expect(message.answer()).toEqual(":nickname PRIVMSG #channel :discordLink");
         })
 
         it('answers nothing on unknown command', () => {
-            const message = new CommandMessage(":username PRIVMSG #channel :!unknown");
+            const rawData = ":username!username@username.tmi.twitch.tv PRIVMSG #channel :!unknown";
+            const rawMessage = new RawMessage(rawData);
+            const message = new CommandMessage(rawMessage);
             expect(message.answer()).toEqual("");
         })
 
         it('answer nothing on extraction error', () => {
-            expect(new CommandMessage(":userA PRIVMSG #channel :!hug").answer()).toEqual("");
+            const rawData = ":userA!userA@userA.tmi.twitch.tv PRIVMSG #channel :!hug";
+            const rawMessage = new RawMessage(rawData);
+            expect(new CommandMessage(rawMessage).answer()).toEqual("");
         });
 
         it('replaces the ${sender} placeholder with username', () => {
-            const message = new CommandMessage(":username PRIVMSG #channel :!hello");
+            const rawData = ":username!username@username.tmi.twitch.tv PRIVMSG #channel :!hello";
+            const rawMessage = new RawMessage(rawData);
+            const message = new CommandMessage(rawMessage);
             expect(message.answer()).toEqual(":nickname PRIVMSG #channel :Hi username!");
         });
 
         it('replaces the saved param', () => {
-            const message = new CommandMessage(":userA PRIVMSG #channel :!hug userB");
+            const rawData = ":userA!userA@userA.tmi.twitch.tv PRIVMSG #channel :!hug userB";
+            const rawMessage = new RawMessage(rawData);
+            const message = new CommandMessage(rawMessage);
             expect(message.answer()).toEqual(":nickname PRIVMSG #channel :userA hugs userB");
         });
 
         it('replaces multiple saved params', () => {
-            const message = new CommandMessage(":userA PRIVMSG #channel :!test userB userC");
+            const rawData = ":userA!userA@userA.tmi.twitch.tv PRIVMSG #channel :!test userB userC";
+            const rawMessage = new RawMessage(rawData);
+            const message = new CommandMessage(rawMessage);
             expect(message.answer()).toEqual(":nickname PRIVMSG #channel :test userB userC");
         });
     })
 
     describe('error handling', () => {
         it('throws error on incomplete Message', () => {
-            expect(() => new CommandMessage("")).toThrow(new Error("Message incomplete"));
+            expect(() => new CommandMessage(new RawMessage(""))).toThrow(new Error("No command found"));
         });
     });
 });

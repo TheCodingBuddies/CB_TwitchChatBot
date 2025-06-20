@@ -1,5 +1,6 @@
 import {VoteMessage} from "../../src/Messages/VoteMessage";
 import {VotingService} from "../../src/Voting/VotingService";
+import {RawMessage} from "../../src/Messages/RawMessage";
 
 describe('VoteMessage', () => {
 
@@ -7,8 +8,6 @@ describe('VoteMessage', () => {
         process.env.NICKNAME = "nickname";
         process.env.CHANNEL = "thecodingbuddies";
     })
-
-
 
     describe('default session vote', () => {
         it('start default vote session', () => {
@@ -18,7 +17,8 @@ describe('VoteMessage', () => {
                 expectedId = id;
                 expectedOptions = options;
             };
-            const voteMessage = new VoteMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote-start [A,B]");
+            const rawMessage = new RawMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote-start [A,B]")
+            const voteMessage = new VoteMessage(rawMessage);
             expect(expectedId).toEqual('default');
             expect(expectedOptions).toEqual(["A", "B"]);
             expect(voteMessage.answer()).toEqual(":nickname PRIVMSG #thecodingbuddies :Voting started! Options are A,B");
@@ -31,13 +31,13 @@ describe('VoteMessage', () => {
                 if (id === "default")
                     votedOption = choseOption;
             };
-            const voteMessage = new VoteMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote A");
+            const rawMessage = new RawMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote A")
+            const voteMessage = new VoteMessage(rawMessage);
             expect(voteMessage.answer()).toEqual("");
             expect(votedOption).toEqual("A");
         });
 
     });
-
 
     describe('specific session vote', () => {
         it('start vote for Session with options A,B', () => {
@@ -49,7 +49,8 @@ describe('VoteMessage', () => {
                     votableOptions = options;
                 }
             };
-            const voteMessage = new VoteMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote-start firstSession [A,B]");
+            const rawMessage = new RawMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote-start firstSession [A,B]")
+            const voteMessage = new VoteMessage(rawMessage);
             expect(votableOptions).toEqual(["A","B"]);
             expect(choseDuration).toEqual(60000);
             expect(voteMessage.answer()).toEqual(":nickname PRIVMSG #thecodingbuddies :Voting firstSession started! Options are A,B");
@@ -61,15 +62,16 @@ describe('VoteMessage', () => {
                 if (id === "firstSession")
                     votedOption = choseOption;
             };
-            const voteMessage = new VoteMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote firstSession A");
+            const rawMessage = new RawMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote firstSession A")
+            const voteMessage = new VoteMessage(rawMessage);
             expect(voteMessage.answer()).toEqual("");
             expect(votedOption).toEqual("A");
         });
     });
 
-
     it('does not start a new vote for Session without options', () => {
-        const voteMessage = new VoteMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote-start firstSession");
+        const rawMessage = new RawMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote-start firstSession")
+        const voteMessage = new VoteMessage(rawMessage);
         expect(voteMessage.answer()).toEqual("");
     });
 });

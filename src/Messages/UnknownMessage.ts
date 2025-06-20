@@ -1,13 +1,13 @@
 export class UnknownMessage implements Message {
 
-    private readonly rawMessage: string;
+    private readonly content: string;
 
     constructor(rawMessage: string) {
-        this.rawMessage = rawMessage;
+        this.content = rawMessage;
     }
 
     answer(): string {
-        console.log(`${this.rawMessage} is unknown --> rejected`);
+        console.log(`${this.content} is unknown --> rejected`);
         return "";
     }
 }

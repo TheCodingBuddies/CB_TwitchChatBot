@@ -4,34 +4,49 @@ import {PingMessage} from "../../src/Messages/PingMessage";
 import {UnknownMessage} from "../../src/Messages/UnknownMessage";
 import {VoteMessage} from "../../src/Messages/VoteMessage";
 import {TarotMessage} from "../../src/Messages/TarotMessage";
+import {RawMessage} from "../../src/Messages/RawMessage";
 
 describe('return correct messages', () => {
     it('returns CommandMessage on Command PRIVMSG', () => {
-        expect(MessageFactory.parse("user PRIVMSG #channel :content")
+        const rawData = ":user!user@user.tmi.twitch.tv PRIVMSG #channel :!content";
+        const rawMessage = new RawMessage(rawData);
+        expect(MessageFactory.process(rawMessage)
             instanceof CommandMessage).toBeTruthy();
     });
 
     it('returns VoteMessage on Command PRIVMSG with valid vote command', () => {
-        expect(MessageFactory.parse("user PRIVMSG #channel :!vote")
+        const rawData1 = ":user!user@user.tmi.twitch.tv PRIVMSG #channel :!vote";
+        const rawMessage1 = new RawMessage(rawData1);
+        expect(MessageFactory.process(rawMessage1)
             instanceof VoteMessage).toBeTruthy();
-        expect(MessageFactory.parse("user PRIVMSG #channel :!vote-start")
+        const rawData2 = ":user!user@user.tmi.twitch.tv PRIVMSG #channel :!vote-start";
+        const rawMessage2 = new RawMessage(rawData2);
+        expect(MessageFactory.process(rawMessage2)
             instanceof VoteMessage).toBeTruthy();
     });
 
     it('returns TarotMessage on Command PRIVMSG with valid tech tarot command', () => {
-        expect(MessageFactory.parse("user PRIVMSG #channel :!tech-tarot")
+        const rawData1 = ":user!user@user.tmi.twitch.tv PRIVMSG #channel :!tech-tarot";
+        const rawMessage1 = new RawMessage(rawData1);
+        expect(MessageFactory.process(rawMessage1)
             instanceof TarotMessage).toBeTruthy();
-        expect(MessageFactory.parse("user PRIVMSG #channel :!tt")
+        const rawData2 = ":user!user@user.tmi.twitch.tv PRIVMSG #channel :!tt";
+        const rawMessage2 = new RawMessage(rawData2);
+        expect(MessageFactory.process(rawMessage2)
             instanceof TarotMessage).toBeTruthy();
     });
 
     it('returns PingMessage on Command PING', () => {
-        expect(MessageFactory.parse("PING :tmi.twitch.tv")
+        const rawData = "PING :tmi.twitch.tv";
+        const rawMessage = new RawMessage(rawData);
+        expect(MessageFactory.process(rawMessage)
             instanceof PingMessage).toBeTruthy();
     });
 
     it('returns UnknownMessage on unknown Command', () => {
-        expect(MessageFactory.parse("UNKNOWN :tmi.twitch.tv")
+        const rawData = "UNKNOWN :tmi.twitch.tv";
+        const rawMessage = new RawMessage(rawData);
+        expect(MessageFactory.process(rawMessage)
             instanceof UnknownMessage).toBeTruthy();
     });
 })

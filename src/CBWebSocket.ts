@@ -2,6 +2,7 @@ import WebSocket, {RawData} from "ws"
 import {MessageFactory} from "./Messages/MessageFactory";
 import {VotingService} from "./Voting/VotingService";
 import {PrivateMessage} from "./Messages/PrivateMessage";
+import {RawMessage} from "./Messages/RawMessage";
 
 export class CBWebSocket {
 
@@ -40,10 +41,11 @@ export class CBWebSocket {
         });
 
         this.client.on("message", (data: RawData) => {
-            const rawMessages: string[] = data.toString().split('\r\n');
-            for (let rawMessage of rawMessages) {
-                if (rawMessage.trim().length > 0) {
-                    let message: Message = MessageFactory.parse(rawMessage);
+            const allRawData: string[] = data.toString().split('\r\n');
+            for (let rawData of allRawData) {
+                if (rawData.trim().length > 0) {
+                    let rawMessage: RawMessage = new RawMessage(rawData);
+                    let message: Message = MessageFactory.process(rawMessage);
                     this.client.send(message.answer());
                 }
             }
