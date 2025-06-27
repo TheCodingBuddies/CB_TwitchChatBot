@@ -1,0 +1,93 @@
+import axios from "axios";
+import {createNewTokenData, getUserAuthInformation, refreshToken} from "../../src/Auth/TwitchApi";
+
+
+jest.mock("axios");
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+
+describe('TwitchApi', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        process.env.CLIENT_ID = "client123id";
+        process.env.CLIENT_SECRET = 'clientXXXsecret';
+        process.env.AUTH_CODE = 'authCode';
+        process.env.REDIRECT_URI = 'http://localhost:5555';
+    });
+
+    it('does the right api call to get user auth information', async () => {
+        const config = {headers: {"Custom-Header": "CustomHeaderValue"}};
+        mockedAxios.get.mockResolvedValueOnce({
+            data: {success: true}
+        });
+        await getUserAuthInformation("testAccessToken", config);
+
+        expect(mockedAxios.get).toHaveBeenCalledWith("https://api.twitch.tv/helix/users", {
+            ...config,
+            headers: {
+                "Custom-Header": "CustomHeaderValue",
+                Authorization: "Bearer testAccessToken",
+                "Client-Id": "client123id",
+            }
+        });
+    });
+
+    it('does the right api call to create new token data', async () => {
+        const mockedResponse = {
+            data: {
+                "access_token": "abcdefg1234567",
+                "refresh_token": "hijklmn7654321",
+                "expires_in": 2592000,
+                "scope": [
+                    "chat:read",
+                    "chat:edit"
+                ],
+                "token_type": "bearer"
+            }
+        }
+
+        mockedAxios.post.mockResolvedValueOnce(mockedResponse);
+        const response = await createNewTokenData();
+
+        const body = new URLSearchParams();
+        body.append("client_id", "client123id");
+        body.append("client_secret", "clientXXXsecret");
+        body.append("code", "authCode");
+        body.append("grant_type", "authorization_code");
+        body.append("redirect_uri", 'http://localhost:5555');
+        expect(mockedAxios.post).toHaveBeenCalledWith("https://id.twitch.tv/oauth2/token", body, {
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        });
+        expect(response).toEqual(mockedResponse);
+    });
+
+    it('does the right call to refresh the token', async () => {
+        const mockedResponse = {
+            data: {
+                "access_token": "abcd1234newaccesstoken",
+                "refresh_token": "refreshtoken_5678new",
+                "expires_in": 2592000,
+                "scope": [
+                    "chat:read",
+                    "chat:edit"
+                ],
+                "token_type": "bearer"
+            }
+        }
+        mockedAxios.post.mockResolvedValueOnce(mockedResponse);
+        const oldRefreshToken = "oldRefreshToken";
+        const response = await refreshToken(oldRefreshToken);
+        const body = new URLSearchParams();
+        body.append("grant_type", "refresh_token");
+        body.append("refresh_token", oldRefreshToken);
+        body.append("client_id", "client123id");
+        body.append("client_secret", "clientXXXsecret");
+        expect(mockedAxios.post).toHaveBeenCalledWith("https://id.twitch.tv/oauth2/token", body, {
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        });
+        expect(response).toEqual(mockedResponse);
+    });
+})

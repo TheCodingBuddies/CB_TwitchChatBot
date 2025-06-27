@@ -37,4 +37,5 @@ Thumbs.db
 
 # custom
 .env
+token-data.json
 /assets/configs/commands.json

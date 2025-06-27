@@ -2,7 +2,6 @@ import {CBWebSocket} from "./CBWebSocket";
 import {ConfigStorage} from "./Config/ConfigStorage";
 
 export class ChatBot {
-    private socket: CBWebSocket;
 
     constructor() {
         try {
@@ -11,6 +10,9 @@ export class ChatBot {
             console.error(error.message);
             process.exit(-1);
         }
-        this.socket = new CBWebSocket("thecodingbuddies");
+    }
+
+    start() {
+        new CBWebSocket("thecodingbuddies", true);
     }
 }

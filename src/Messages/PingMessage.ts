@@ -6,7 +6,7 @@ export class PingMessage implements Message {
     }
 
     answer(): string {
-        console.log("Got Ping Message -> Time to Response");
+        console.log("Got Ping Message -> Time for Ping Pong");
         return `PONG ${this.aliveText}`;
     }
 }

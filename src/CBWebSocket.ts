@@ -3,6 +3,7 @@ import {MessageFactory} from "./Messages/MessageFactory";
 import {VotingService} from "./Voting/VotingService";
 import {PrivateMessage} from "./Messages/PrivateMessage";
 import {RawMessage} from "./Messages/RawMessage";
+import {loadTokenData} from "./Auth/TokenUpdater";
 
 export class CBWebSocket {
 
@@ -11,10 +12,14 @@ export class CBWebSocket {
     readonly VOTE_REMINDER = "VoteReminder";
     client: WebSocket;
     channel: string;
+    readonly token: string;
+    useCapabilities: boolean;
 
-    constructor(channel: string) {
+    constructor(channel: string, useCapabilities: boolean) {
         this.client = new WebSocket(this.TWITCH_CHANNEL);
         this.channel = channel;
+        this.token = loadTokenData().access_token;
+        this.useCapabilities = useCapabilities;
         this.registerListener();
         this.registerVotingListener();
     }
@@ -29,26 +34,41 @@ export class CBWebSocket {
     }
 
     private registerListener() {
-        this.client.on("open", () => {
-            this.client.send(`CAP REQ :twitch.tv/commands`);
-            this.client.send(`PASS oauth:${process.env.TOKEN}`);
-            this.client.send(`NICK ${process.env.NICKNAME}`);
-            this.client.send(`JOIN #${this.channel}`);
-        });
+        this.client.on("open", this.handleOpenConnection.bind(this));
+        this.client.on("close", this.handleCloseConnection.bind(this));
+        this.client.on("message", this.handleMessage.bind(this));
+        this.client.on("error", this.handleError.bind(this));
+    }
 
-        this.client.on("close", () => {
-            console.log("closed");
-        });
+    private handleOpenConnection() {
+        this.client.send(`PASS oauth:${this.token}`);
+        this.client.send(`NICK ${process.env.NICKNAME}`);
+        const littleCaps = `CAP REQ :twitch.tv/commands`;
+        const fullCaps = 'CAP REQ :twitch.tv/tags CAP REQ :twitch.tv/commands twitch.tv/membership';
+        const caps = this.useCapabilities ? fullCaps : littleCaps;
+        this.client.send(caps);
+        this.client.send(`JOIN #${this.channel}`);
+    }
 
-        this.client.on("message", (data: RawData) => {
-            const allRawData: string[] = data.toString().split('\r\n');
-            for (let rawData of allRawData) {
-                if (rawData.trim().length > 0) {
-                    let rawMessage: RawMessage = new RawMessage(rawData);
-                    let message: Message = MessageFactory.process(rawMessage);
-                    this.client.send(message.answer());
-                }
+    private handleMessage(data: RawData) {
+        const allRawData: string[] = data.toString()
+            .split('\r\n')
+            .filter(raw => raw.trim().length > 0);
+
+        allRawData.forEach(rawData => {
+            let rawMessage: RawMessage = new RawMessage(rawData);
+            let message: Message = MessageFactory.process(rawMessage);
+            if (message?.answer) {
+                this.client.send(message.answer());
             }
-        })
+        });
+    }
+
+    private handleError(err: Error) {
+        console.error("WebSocket error:", err);
+    }
+
+    private handleCloseConnection() {
+        console.log("closed");
     }
 }
