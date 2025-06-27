@@ -1,15 +1,18 @@
 import fs from "fs";
-import {initializeTokenData, loadTokenData} from "../../src/Auth/TokenUpdater";
+import {initializeTokenData, loadTokenData, scheduleAutoRefresh} from "../../src/Auth/TokenUpdater";
 import * as api from "../../src/Auth/TwitchApi";
 import {AxiosResponse} from "axios";
 
 describe('TokenUpdater', () => {
-    let saveSpy = jest.spyOn(fs, "writeFileSync").mockImplementation(() => {});
+    let saveSpy = jest.spyOn(fs, "writeFileSync").mockImplementation(() => {
+    });
     beforeEach(() => {
-        saveSpy = jest.spyOn(fs, "writeFileSync").mockImplementation(() => {});
+        jest.useFakeTimers();
+        saveSpy = jest.spyOn(fs, "writeFileSync").mockImplementation(() => {
+        });
     })
-
     afterEach(() => {
+        jest.useRealTimers();
         saveSpy.mockRestore();
     })
 
@@ -125,6 +128,48 @@ describe('TokenUpdater', () => {
         authInfoSpy.mockRestore();
         refreshSpy.mockRestore();
     });
+
+    it('refreshes token after timeout', () => {
+        Date.now = () => 5_000;
+        const tokenData = {
+            access_token: "new_access_token",
+            refresh_token: "new_refresh_token",
+            expires_at: 900_000,
+        };
+        const refreshResponse: AxiosResponse = {
+            data: {
+                access_token: "refreshed_access_token",
+                refresh_token: "refreshed_refresh_token",
+                expires_in: 3600,
+                scope: ["chat:read", "chat:edit"],
+                token_type: "bearer",
+            },
+            status: 200,
+            statusText: "OK",
+            headers: {"content-type": "application/json"},
+            config: undefined,
+        }
+        const expectedTokenData = {
+            access_token: "refreshed_access_token",
+            refresh_token: "refreshed_refresh_token",
+            expires_in: 3600,
+        }
+
+        const refreshSpy = jest.spyOn(api, "refreshToken")
+            .mockImplementation(() => {
+                return Promise.resolve(refreshResponse)
+            });
+
+        scheduleAutoRefresh(tokenData);
+        tick(595.001);
+
+        expect(saveSpy).toHaveBeenCalledWith("./token-data.json", JSON.stringify(expectedTokenData, null, 2));
+        refreshSpy.mockRestore();
+    });
+
+    function tick(timeInMs: number) {
+        jest.advanceTimersByTime(timeInMs);
+    }
 
     function getExpireTimeIn(hours: number): number {
         const now = new Date();

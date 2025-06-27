@@ -53,19 +53,22 @@ async function refreshTokenData(tokenData: TokenData): Promise<TokenData> {
     }
 }
 
-export function scheduleAutoRefresh(tokens: TokenData) {
+export function scheduleAutoRefresh(tokenData: TokenData) {
     const now = Date.now();
-    const refreshInMs = (tokens.expires_at - now - 300_000); // 5 min before
+    const refreshInMs = (tokenData.expires_at - now - 60_000); // 1 min before
 
     if (refreshInMs > 0) {
         console.log(`Next Token-Refresh in ${Math.floor(refreshInMs / 1000)} seconds.`);
-        setTimeout(async () => {
-            const refreshed = await refreshAccessToken(tokens.refresh_token);
-            scheduleAutoRefresh(refreshed);
+        setTimeout(() => {
+            refreshAccessToken(tokenData.refresh_token).then(refreshed => {
+                scheduleAutoRefresh(refreshed);
+            });
+            // const refreshed = await refreshAccessToken(tokenData.refresh_token);
+            // scheduleAutoRefresh(refreshed);
         }, refreshInMs);
     } else {
         console.log("Token expired unexpected – refreshing now...");
-        refreshAccessToken(tokens.refresh_token).then(scheduleAutoRefresh);
+        refreshAccessToken(tokenData.refresh_token).then(scheduleAutoRefresh);
     }
 }
 
