@@ -1,5 +1,5 @@
 import axios from "axios";
-import {createNewTokenData, getUserAuthInformation, refreshToken} from "../../src/Auth/TwitchApi";
+import {TwitchApi} from "../../src/Auth/TwitchApi";
 
 
 jest.mock("axios");
@@ -19,7 +19,7 @@ describe('TwitchApi', () => {
         mockedAxios.get.mockResolvedValueOnce({
             data: {success: true}
         });
-        await getUserAuthInformation("testAccessToken", config);
+        await TwitchApi.getUserAuthInformation("testAccessToken", config);
 
         expect(mockedAxios.get).toHaveBeenCalledWith("https://api.twitch.tv/helix/users", {
             ...config,
@@ -46,7 +46,7 @@ describe('TwitchApi', () => {
         }
 
         mockedAxios.post.mockResolvedValueOnce(mockedResponse);
-        const response = await createNewTokenData();
+        const response = await TwitchApi.createNewTokenData();
 
         const body = new URLSearchParams();
         body.append("client_id", "client123id");
@@ -77,7 +77,7 @@ describe('TwitchApi', () => {
         }
         mockedAxios.post.mockResolvedValueOnce(mockedResponse);
         const oldRefreshToken = "oldRefreshToken";
-        const response = await refreshToken(oldRefreshToken);
+        const response = await TwitchApi.refreshToken(oldRefreshToken);
         const body = new URLSearchParams();
         body.append("grant_type", "refresh_token");
         body.append("refresh_token", oldRefreshToken);

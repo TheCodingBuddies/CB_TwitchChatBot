@@ -3,7 +3,7 @@ import {MessageFactory} from "./Messages/MessageFactory";
 import {VotingService} from "./Voting/VotingService";
 import {PrivateMessage} from "./Messages/PrivateMessage";
 import {RawMessage} from "./Messages/RawMessage";
-import {loadTokenData} from "./Auth/TokenUpdater";
+import {TokenUpdater} from "./Auth/TokenUpdater";
 
 export class CBWebSocket {
 
@@ -18,7 +18,7 @@ export class CBWebSocket {
     constructor(channel: string, useCapabilities: boolean) {
         this.client = new WebSocket(this.TWITCH_CHANNEL);
         this.channel = channel;
-        this.token = loadTokenData().access_token;
+        this.token = TokenUpdater.loadTokenData().access_token;
         this.useCapabilities = useCapabilities;
         this.registerListener();
         this.registerVotingListener();

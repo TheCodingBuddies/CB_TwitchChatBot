@@ -1,34 +1,66 @@
-import fs from "fs";
-import {initializeTokenData, loadTokenData, scheduleAutoRefresh} from "../../src/Auth/TokenUpdater";
-import * as api from "../../src/Auth/TwitchApi";
+import DoneCallback = jest.DoneCallback;
+import {TokenUpdater} from "../../src/Auth/TokenUpdater";
+import {TwitchApi} from "../../src/Auth/TwitchApi";
 import {AxiosResponse} from "axios";
 
-describe('TokenUpdater', () => {
-    let saveSpy = jest.spyOn(fs, "writeFileSync").mockImplementation(() => {
+function getExpireTimeIn(hours: number): number {
+    const now = new Date();
+    const futureDate = new Date(now.getTime() + hours * 60 * 60 * 1000);
+    return futureDate.getTime();
+}
+
+let loadedTokenData = {
+    access_token: "mock_access_token",
+    refresh_token: "mock_refresh_token",
+    expires_at: getExpireTimeIn(1),
+};
+let loadFileFailed = false;
+let savedTokenData = {};
+
+jest.mock('fs', () => {
+    const mockReadFileSync = ((path: string): string => {
+        if (loadFileFailed) {
+            throw new Error("File not found");
+        }
+        return JSON.stringify(loadedTokenData);
     });
+
+    const mockWriteFileSync = ((path: string, data: string): void => {
+        savedTokenData = {path: path, data: data}
+    })
+
+    return {
+        readFileSync: mockReadFileSync,
+        writeFileSync: mockWriteFileSync,
+    }
+})
+
+describe('TokenUpdater', () => {
     beforeEach(() => {
+        loadFileFailed = false;
+        savedTokenData = {};
         jest.useFakeTimers();
-        saveSpy = jest.spyOn(fs, "writeFileSync").mockImplementation(() => {
-        });
     })
     afterEach(() => {
+        jest.clearAllTimers();
+    })
+    afterAll(() => {
         jest.useRealTimers();
-        saveSpy.mockRestore();
+        jest.restoreAllMocks();
     })
 
     it('loads the token data', () => {
-        const mockTokenData = {
+        loadedTokenData = {
             access_token: "mock_access_token",
             refresh_token: "mock_refresh_token",
             expires_at: getExpireTimeIn(1),
         };
-        const loadSpy = jest.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(mockTokenData));
-        const data = loadTokenData();
-        expect(data).toEqual(mockTokenData);
-        loadSpy.mockRestore();
+        const data = TokenUpdater.loadTokenData();
+        expect(data).toEqual(loadedTokenData);
     });
 
-    it('creates a new token if no token data exists', async () => {
+    it('creates a new token if no token data exists', (done: DoneCallback) => {
+        loadFileFailed = true;
         Date.now = () => 1000
         const expires_in_sec = 3600;
         const expires_at = Date.now() + expires_in_sec * 1000;
@@ -50,39 +82,38 @@ describe('TokenUpdater', () => {
             refresh_token: "new_refresh_token",
             expires_at: expires_at,
         };
-        const loadSpy = jest.spyOn(fs, "readFileSync")
-            .mockReturnValue("Missing token data");
-        const newTokenSpy = jest.spyOn(api, "createNewTokenData")
-            .mockReturnValue(Promise.resolve(tokenCreationResponse))
+        TwitchApi.createNewTokenData = () => {
+            return Promise.resolve(tokenCreationResponse)
+        }
 
-        const tokenData = await initializeTokenData();
-
-        expect(tokenData).toEqual(expectedNewTokenData);
-        expect(saveSpy).toHaveBeenCalledWith("./token-data.json", JSON.stringify(expectedNewTokenData, null, 2));
-        loadSpy.mockRestore();
-        newTokenSpy.mockRestore();
+        TokenUpdater.initializeTokenData().then(tokenData => {
+            expect(tokenData).toEqual(expectedNewTokenData);
+            expect(savedTokenData).toEqual({
+                path: "./token-data.json",
+                data: JSON.stringify(expectedNewTokenData, null, 2)
+            });
+            done();
+        });
     });
 
-    it('loads and return valid token data if exists', async () => {
-        const existingTokenData = {
+    it('loads and return valid token data if exists', (done: DoneCallback) => {
+        loadedTokenData = {
             access_token: "existing_access_token",
             refresh_token: "existing_refresh_token",
             expires_at: getExpireTimeIn(2),
         };
-        const loadSpy = jest.spyOn(fs, "readFileSync")
-            .mockReturnValue(JSON.stringify(existingTokenData));
 
-        const tokenData = await initializeTokenData();
-
-        expect(tokenData).toEqual(existingTokenData);
-        loadSpy.mockRestore();
+        TokenUpdater.initializeTokenData().then(tokenData => {
+            expect(tokenData).toEqual(loadedTokenData);
+            done();
+        });
     });
 
-    it('loads expired token and refreshes token data', async () => {
+    it('loads expired token and refreshes token data', (done: DoneCallback) => {
         Date.now = () => 1000;
         const expires_in_sec = 3600;
         const expires_at = Date.now() + expires_in_sec * 1000;
-        const expiredTokenData = {
+        loadedTokenData = {
             access_token: "expired_access_token",
             refresh_token: "expired_refresh_token",
             expires_at: 999,
@@ -112,24 +143,28 @@ describe('TokenUpdater', () => {
             refresh_token: "refreshed_refresh_token",
             expires_at: expires_at,
         };
-        const loadSpy = jest.spyOn(fs, "readFileSync")
-            .mockReturnValue(JSON.stringify(expiredTokenData));
-        const authInfoSpy = jest.spyOn(api, "getUserAuthInformation")
-            .mockImplementationOnce(() => Promise.reject({response: {status: 401}}))
-            .mockImplementationOnce(() => Promise.resolve(authResponse));
-        const refreshSpy = jest.spyOn(api, "refreshToken")
-            .mockReturnValue(Promise.resolve(refreshResponse));
+        TwitchApi.getUserAuthInformation = (accessToken) => {
+            if (accessToken === "expired_access_token") {
+                return Promise.reject({response: {status: 401}});
+            } else {
+                return Promise.resolve(authResponse);
+            }
+        }
+        TwitchApi.refreshToken = () => {
+            return Promise.resolve(refreshResponse)
+        }
 
-        const tokenData = await initializeTokenData();
-
-        expect(tokenData).toEqual(refreshedTokenData);
-        expect(saveSpy).toHaveBeenCalledWith("./token-data.json", JSON.stringify(refreshedTokenData, null, 2));
-        loadSpy.mockRestore();
-        authInfoSpy.mockRestore();
-        refreshSpy.mockRestore();
+        TokenUpdater.initializeTokenData().then(tokenData => {
+            expect(tokenData).toEqual(refreshedTokenData);
+            expect(savedTokenData).toEqual({
+                path: "./token-data.json",
+                data: JSON.stringify(refreshedTokenData, null, 2)
+            });
+            done();
+        });
     });
 
-    it('refreshes token after timeout', () => {
+    it('refreshes token after timeout', async () => {
         Date.now = () => 5_000;
         const tokenData = {
             access_token: "new_access_token",
@@ -152,28 +187,16 @@ describe('TokenUpdater', () => {
         const expectedTokenData = {
             access_token: "refreshed_access_token",
             refresh_token: "refreshed_refresh_token",
-            expires_in: 3600,
+            expires_at: 5000 + 3600 * 1000,
         }
 
-        const refreshSpy = jest.spyOn(api, "refreshToken")
-            .mockImplementation(() => {
-                return Promise.resolve(refreshResponse)
-            });
+        TwitchApi.refreshToken = () => {
+            return Promise.resolve(refreshResponse)
+        }
 
-        scheduleAutoRefresh(tokenData);
-        tick(595.001);
+        TokenUpdater.scheduleAutoRefresh(tokenData);
+        await jest.advanceTimersByTimeAsync(900_000); //kranker jest kram, stellt sicher, dass setTimeout abgeschlossen wird bevor es hier weiter geht
 
-        expect(saveSpy).toHaveBeenCalledWith("./token-data.json", JSON.stringify(expectedTokenData, null, 2));
-        refreshSpy.mockRestore();
+        expect(savedTokenData).toEqual({path: "./token-data.json", data: JSON.stringify(expectedTokenData, null, 2)});
     });
-
-    function tick(timeInMs: number) {
-        jest.advanceTimersByTime(timeInMs);
-    }
-
-    function getExpireTimeIn(hours: number): number {
-        const now = new Date();
-        const futureDate = new Date(now.getTime() + hours * 60 * 60 * 1000);
-        return Math.floor(futureDate.getTime() / 1000);
-    }
 });

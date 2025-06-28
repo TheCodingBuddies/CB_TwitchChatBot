@@ -1,11 +1,11 @@
 import {configDotenv} from "dotenv";
 import {ChatBot} from "./src/ChatBot";
-import * as tokenManager from "./src/Auth/TokenUpdater";
+import {TokenUpdater} from "./src/Auth/TokenUpdater";
 
 async function run() {
     configDotenv({path: ".env"})
-    const tokenData = await tokenManager.initializeTokenData();
-    tokenManager.scheduleAutoRefresh(tokenData);
+    const tokenData = await TokenUpdater.initializeTokenData();
+    TokenUpdater.scheduleAutoRefresh(tokenData);
     new ChatBot().start();
 }
 

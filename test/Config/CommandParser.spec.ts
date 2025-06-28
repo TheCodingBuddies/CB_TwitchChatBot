@@ -21,6 +21,9 @@ describe('Parse Command Config', () => {
     beforeEach(() => {
         loadFileFailed = false;
     })
+    afterAll(() => {
+        jest.restoreAllMocks();
+    })
 
     it('parses from the correct config location', () => {
         expect(CommandParser.COMMAND_CONFIG_LOCATION).toEqual("assets/configs/commands.json");
