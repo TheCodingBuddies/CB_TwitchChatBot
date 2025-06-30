@@ -1,5 +1,5 @@
-import {CommandTimeoutList} from "../../src/Config/CommandTimeoutList";
-import {CommandScope} from "../../src/Config/CommandParser";
+import {CommandTimeoutList} from "../../src/Commands/CommandTimeoutList";
+import {CommandScope} from "../../src/Commands/CommandParser";
 
 describe('Command TimeoutList', () => {
     let timeoutList: CommandTimeoutList;

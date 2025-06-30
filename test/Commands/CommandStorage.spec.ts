@@ -1,6 +1,6 @@
-import {ConfigStorage} from "../../src/Config/ConfigStorage";
-import {Command, CommandParser, CommandScope} from "../../src/Config/CommandParser";
-import {DuplicateCommandError} from "../../src/Config/DuplicateCommandError";
+import {CommandStorage} from "../../src/Commands/CommandStorage";
+import {Command, CommandParser, CommandScope} from "../../src/Commands/CommandParser";
+import {DuplicateCommandError} from "../../src/Commands/DuplicateCommandError";
 
 let parsedCommands : Command[] = [{
     name: "!Command",
@@ -43,7 +43,7 @@ const mockParseDuplicates = ((): Command[] => {
     }]
 });
 
-describe('ConfigStorage', () => {
+describe('CommandStorage', () => {
 
     beforeEach(() => {
         CommandParser.parseLowerCase = mockParseLowerCase;
@@ -52,12 +52,12 @@ describe('ConfigStorage', () => {
 
     describe('load config', () => {
         it('return empty commands without config loading', () => {
-            expect(ConfigStorage.getCommands()).toHaveLength(0);
+            expect(CommandStorage.getCommands()).toHaveLength(0);
         });
 
         it('loads command config', () => {
-            ConfigStorage.loadConfig();
-            const loadedCommands: Command[] = ConfigStorage.getCommands();
+            CommandStorage.loadConfig();
+            const loadedCommands: Command[] = CommandStorage.getCommands();
             const commandsResponse = "Verfügbare Commands: [!Command, !command2]";
             expect(loadedCommands).toHaveLength(3);
             expect(loadedCommands[0]).toEqual({name: "!command", response: "doMockThings", cooldownInSec: 2, scope: CommandScope.GLOBAL});
@@ -68,18 +68,18 @@ describe('ConfigStorage', () => {
         it('throws DuplicateCommandError on identical command name', () => {
             CommandParser.parseLowerCase = mockParseDuplicates;
             expect(() => {
-                ConfigStorage.loadConfig();
+                CommandStorage.loadConfig();
             }).toThrow(DuplicateCommandError);
             expect(() => {
-                ConfigStorage.loadConfig();
+                CommandStorage.loadConfig();
             }).toThrow('Duplicate command !command found');
         });
     });
 
     describe('timeout list handling', () => {
         it('has a empty timeout list on config load', () => {
-            ConfigStorage.loadConfig();
-            expect(ConfigStorage.timeoutList.count()).toEqual(0);
+            CommandStorage.loadConfig();
+            expect(CommandStorage.timeoutList.count()).toEqual(0);
         });
     });
 });

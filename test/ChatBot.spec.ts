@@ -1,5 +1,5 @@
 import {ChatBot} from "../src/ChatBot";
-import {ConfigStorage} from "../src/Config/ConfigStorage";
+import {CommandStorage} from "../src/Commands/CommandStorage";
 
 let configsLoaded = false;
 const mockLoadConfigs = () => {
@@ -19,7 +19,7 @@ const mockExit = (code?: number): never => {
 describe('ChatBot', () => {
 
     beforeEach(() => {
-        ConfigStorage.loadConfig = mockLoadConfigs;
+        CommandStorage.loadConfig = mockLoadConfigs;
         configsLoaded = false;
         exitCode = 0;
     })
@@ -32,7 +32,7 @@ describe('ChatBot', () => {
 
         it('closes the chatbot on incorrect config', () => {
             process.exit = mockExit;
-            ConfigStorage.loadConfig = mockLoadConfigsFails;
+            CommandStorage.loadConfig = mockLoadConfigsFails;
             new ChatBot();
             expect(exitCode).toEqual(-1);
         });

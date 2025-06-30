@@ -4,12 +4,14 @@ import {VotingService} from "./Voting/VotingService";
 import {PrivateMessage} from "./Messages/PrivateMessage";
 import {RawMessage} from "./Messages/RawMessage";
 import {TokenUpdater} from "./Auth/TokenUpdater";
+import {PeriodicService} from "./Periodic/PeriodicService";
 
 export class CBWebSocket {
 
     readonly TWITCH_CHANNEL = "ws://irc-ws.chat.twitch.tv:80";
     readonly LAST_VOTE_RESULT = "lastVoteResult";
     readonly VOTE_REMINDER = "VoteReminder";
+    readonly INTERVAL_OVER = "IntervalOver";
     client: WebSocket;
     channel: string;
     readonly token: string;
@@ -22,6 +24,14 @@ export class CBWebSocket {
         this.useCapabilities = useCapabilities;
         this.registerListener();
         this.registerVotingListener();
+        this.registerPeriodicListener();
+    }
+
+    private registerPeriodicListener(): void {
+        PeriodicService.startInterval();
+        PeriodicService.intervalResult.on(this.INTERVAL_OVER, (message: string) => {
+            this.client.send(new PrivateMessage(message).content);
+        })
     }
 
     private registerVotingListener(): void {

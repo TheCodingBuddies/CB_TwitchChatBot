@@ -1,7 +1,7 @@
 import {CommandMessage} from "../../src/Messages/CommandMessage";
-import {Command, CommandScope} from "../../src/Config/CommandParser";
-import {ConfigStorage} from "../../src/Config/ConfigStorage";
-import {CommandTimeoutList} from "../../src/Config/CommandTimeoutList";
+import {Command, CommandScope} from "../../src/Commands/CommandParser";
+import {CommandStorage} from "../../src/Commands/CommandStorage";
+import {CommandTimeoutList} from "../../src/Commands/CommandTimeoutList";
 import {RawMessage} from "../../src/Messages/RawMessage";
 
 const testCommandTimoutInSec: number = 2;
@@ -41,9 +41,9 @@ describe('CommandMessageTest', () => {
     beforeEach(() => {
         process.env.NICKNAME = "nickname";
         process.env.CHANNEL = "channel";
-        ConfigStorage.getCommands = mockGetCommand;
+        CommandStorage.getCommands = mockGetCommand;
         timeoutList = new CommandTimeoutList();
-        ConfigStorage.timeoutList = timeoutList;
+        CommandStorage.timeoutList = timeoutList;
         Date.now = () => 1;
     })
 

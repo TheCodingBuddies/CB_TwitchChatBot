@@ -39,3 +39,4 @@ Thumbs.db
 .env
 token-data.json
 /assets/configs/commands.json
+/assets/configs/periodic.json

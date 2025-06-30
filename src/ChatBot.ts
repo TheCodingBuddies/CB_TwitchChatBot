@@ -1,11 +1,13 @@
 import {CBWebSocket} from "./CBWebSocket";
-import {ConfigStorage} from "./Config/ConfigStorage";
+import {CommandStorage} from "./Commands/CommandStorage";
+import {PeriodicStorage} from "./Periodic/PeriodicStorage";
 
 export class ChatBot {
 
     constructor() {
         try {
-            ConfigStorage.loadConfig();
+            CommandStorage.loadConfig();
+            PeriodicStorage.loadConfig();
         } catch (error) {
             console.error(error.message);
             process.exit(-1);

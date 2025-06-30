@@ -1,4 +1,5 @@
 import {VotingService} from "../../src/Voting/VotingService";
+import DoneCallback = jest.DoneCallback;
 
 describe("VotingService", () => {
 
@@ -16,7 +17,7 @@ describe("VotingService", () => {
         const durationInMs = 60000;
         const sessionName = "firstSession";
         VotingService.start(sessionName, durationInMs, ["A", "B"]);
-        tick(durationInMs - 1);
+        jest.advanceTimersByTime(durationInMs - 1);
 
         expect(VotingService.isActive(sessionName)).toBeTruthy();
     });
@@ -25,64 +26,69 @@ describe("VotingService", () => {
         const durationInMs = 60000;
         const sessionName = "firstSession";
         VotingService.start(sessionName, durationInMs, ["A", "B"]);
-        tick(durationInMs);
+        jest.advanceTimersByTime(durationInMs + 1);
         expect(VotingService.isActive(sessionName)).toBeFalsy();
     });
 
-    it('started default session and wrote correct summary', () => {
+    it('started default session and wrote correct summary', (done: DoneCallback) => {
         const durationInMs: number = 60000;
         VotingService.start("default", durationInMs, ["A", "B"]);
         tick(durationInMs);
 
         VotingService.recentResult.on("lastVoteResult", (res) => {
             expect(res).toEqual("Voting beendet! Option A hat gewonnen!");
+            done();
         });
 
     });
 
     describe('Voting on specific sessions', () => {
-        it('first option (A) wins the session without voting', () => {
+        it('first option (A) wins the session without voting', (done: DoneCallback) => {
             const durationInMs = 60000;
             startTestSession(durationInMs);
             VotingService.recentResult.on("lastVoteResult", (res) => {
                 expect(res).toEqual("Voting firstSession beendet! Option A hat gewonnen!");
+                done();
             });
             tick(durationInMs);
         });
 
-        it('votes for option A after start Voting and A wins', () => {
+        it('votes for option A after start Voting and A wins', (done: DoneCallback) => {
             const durationInMs = 60000;
             startTestSession(durationInMs);
             VotingService.vote("aUser", "firstSession", "A");
             VotingService.recentResult.on("lastVoteResult", (res) => {
                 expect(res).toEqual("Voting firstSession beendet! Option A hat gewonnen!");
+                done();
             });
             tick(durationInMs);
         });
 
-        it('votes for option B after start Voting and B wins', () => {
+        it('votes for option B after start Voting and B wins', (done: DoneCallback) => {
             const durationInMs = 60000;
             const sessionName = "secondSession";
             VotingService.start(sessionName, durationInMs, ["A", "B"]);
             VotingService.vote("aUser", "secondSession", "B");
             VotingService.recentResult.on("lastVoteResult", (res) => {
                 expect(res).toEqual("Voting secondSession beendet! Option B hat gewonnen!");
+                done();
             });
             tick(durationInMs);
         });
 
-        it('votes for both options, first option voted wins', () => {
+        it('votes for both options, first option voted wins', (done: DoneCallback) => {
             const durationInMs = 60000;
             startTestSession(durationInMs);
             VotingService.vote("userB", "firstSession", "B");
             VotingService.vote("userA", "firstSession", "A");
             VotingService.recentResult.on("lastVoteResult", (res) => {
                 expect(res).toEqual("Voting firstSession beendet! Option B hat gewonnen!");
+                done();
             });
             tick(durationInMs);
         });
 
-        it('votes for option C and A wins because C does not exist', () => {
+        it('votes for option C and A wins because C does not exist', (done: DoneCallback) => {
             const durationInMs = 60000;
             startTestSession(durationInMs);
             VotingService.vote("aUser", "firstSession", "A");
@@ -90,21 +96,23 @@ describe("VotingService", () => {
             VotingService.vote("aUser", "firstSession", "C");
             VotingService.recentResult.on("lastVoteResult", (res) => {
                 expect(res).toEqual("Voting firstSession beendet! Option A hat gewonnen!");
+                done();
             });
             tick(durationInMs);
         });
 
-        it('revoke vote if session not exits', () => {
+        it('revoke vote if session not exits', (done: DoneCallback) => {
             const durationInMs = 60000;
             startTestSession(durationInMs);
             VotingService.vote("aUser", "notExistingSession", "B");
             VotingService.recentResult.on("lastVoteResult", (res) => {
                 expect(res).toEqual("Voting firstSession beendet! Option A hat gewonnen!");
+                done();
             });
             tick(durationInMs);
         });
 
-        it('does not vote twice for same user', () => {
+        it('does not vote twice for same user', (done: DoneCallback) => {
             const durationInMs = 60000;
             startTestSession(durationInMs);
             VotingService.vote("userA", "firstSession", "A");
@@ -114,20 +122,21 @@ describe("VotingService", () => {
             VotingService.vote("userC", "firstSession", "B");
             VotingService.recentResult.on("lastVoteResult", (res) => {
                 expect(res).toEqual("Voting firstSession beendet! Option B hat gewonnen!");
+                done();
             });
             tick(durationInMs);
         });
     });
 
-    it('reminds to vote when 20 seconds left', () => {
+    it('reminds to vote when 20 seconds left', (done: DoneCallback) => {
         const durationInMs: number = 60000;
         VotingService.start("FirstSession", durationInMs, ["A", "B"]);
 
         VotingService.voteReminder.on("VoteReminder", (res) => {
             expect(res).toEqual("Voting Session FirstSession endet in 20 Sekunden!");
+            done();
         });
-
-        tick(durationInMs - 20001);
+        tick(durationInMs - 19000);
     });
 
     function startTestSession(durationInMs: number) {
@@ -136,6 +145,6 @@ describe("VotingService", () => {
     }
 
     function tick(timeInMs: number) {
-        jest.advanceTimersByTime(timeInMs);
+        jest.advanceTimersByTimeAsync(timeInMs);
     }
 });

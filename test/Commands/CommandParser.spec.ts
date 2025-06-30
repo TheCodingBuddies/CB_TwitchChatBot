@@ -1,4 +1,4 @@
-import {Command, CommandParser, CommandScope} from "../../src/Config/CommandParser";
+import {Command, CommandParser, CommandScope} from "../../src/Commands/CommandParser";
 
 let loadFileFailed = false;
 

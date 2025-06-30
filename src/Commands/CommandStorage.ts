@@ -2,7 +2,7 @@ import {Command, CommandParser, CommandScope} from "./CommandParser";
 import {DuplicateCommandError} from "./DuplicateCommandError";
 import {CommandTimeoutList} from "./CommandTimeoutList";
 
-export class ConfigStorage {
+export class CommandStorage {
 
     static timeoutList: CommandTimeoutList;
     private static commands: Command[] = [];
