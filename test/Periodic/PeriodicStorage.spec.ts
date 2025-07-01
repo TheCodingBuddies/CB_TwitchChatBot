@@ -1,8 +1,9 @@
-import {PeriodicStorage} from "../../src/Periodic/PeriodicStorage";
+import {PeriodicConfig, PeriodicStorage} from "../../src/Periodic/PeriodicStorage";
 
 let loadFileFailed = false;
-let loadedPeriodicConfig = {
+let loadedPeriodicConfig: PeriodicConfig = {
     frequencyInSec: 60,
+    type: "rand",
     messages: [
         "message1",
         "second message",
@@ -26,6 +27,15 @@ jest.mock('fs', () => {
 describe('PeriodicStorage', () => {
     beforeEach(() => {
         loadFileFailed = false;
+        loadedPeriodicConfig = {
+            frequencyInSec: 60,
+            type: "rand",
+            messages: [
+                "message1",
+                "second message",
+                "this is a third message"
+            ]
+        };
     })
     afterAll(() => {
         jest.restoreAllMocks();
@@ -40,7 +50,22 @@ describe('PeriodicStorage', () => {
         PeriodicStorage.loadConfig();
 
         expect(PeriodicStorage.getFrequencyInSec()).toEqual(60);
+        expect(PeriodicStorage.getType()).toEqual("rand");
         expect(PeriodicStorage.getMessages()).toEqual(expectedMessages);
+    });
+
+    it('sets type to seq if unknown type is set', () => {
+        loadedPeriodicConfig = {
+            frequencyInSec: 60,
+            type: "reverse",
+            messages: [
+                "message1",
+                "second message",
+                "this is a third message"
+            ]
+        };
+        PeriodicStorage.loadConfig();
+        expect(PeriodicStorage.getType()).toEqual("seq");
     });
 
     it('has no messages if config file not exists', () => {

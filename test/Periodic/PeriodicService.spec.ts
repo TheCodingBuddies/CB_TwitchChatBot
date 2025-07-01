@@ -12,9 +12,10 @@ describe('PeriodicService', () => {
         PeriodicService.intervalResult.removeAllListeners();
     });
 
-    it('starts interval and send message if interval is over', (done: DoneCallback) => {
+    it('starts interval and send random message if interval is over', (done: DoneCallback) => {
         PeriodicStorage.getMessages = () => ["first periodic message", "second periodic message"];
         PeriodicStorage.getFrequencyInSec = () => 30;
+        PeriodicStorage.getType = () => "rand";
         Math.random = () => 0.6;
 
         const started = PeriodicService.startInterval();
@@ -26,18 +27,22 @@ describe('PeriodicService', () => {
         expect(started).toBeTruthy();
     });
 
-    it('sends two messages after two intervals ', (done: DoneCallback) => {
+    it('sends two seq messages after two intervals ', (done: DoneCallback) => {
         PeriodicStorage.getMessages = () => ["first periodic message", "second periodic message"];
         PeriodicStorage.getFrequencyInSec = () => 30;
+        PeriodicStorage.getType = () => "seq";
         let messageSent = 0;
         const started = PeriodicService.startInterval();
         tick(60 * 1000 + 1)
 
 
-        PeriodicService.intervalResult.on("IntervalOver", (res) => {
+        PeriodicService.intervalResult.on("IntervalOver", (message) => {
             messageSent++;
+            if (messageSent === 1) {
+                expect(message).toEqual("first periodic message");
+            }
             if (messageSent === 2) {
-                expect(true).toBeTruthy();
+                expect(message).toEqual("second periodic message");
                 done()
             }
         });

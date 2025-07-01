@@ -3,7 +3,7 @@ import EventEmitter from "events";
 
 export class PeriodicService {
     static intervalResult: EventEmitter = new EventEmitter();
-
+    private static nextMessageCounter: number = 0;
     constructor() {
     }
 
@@ -20,9 +20,23 @@ export class PeriodicService {
     }
 
     private static sendMessage() {
+        const message = PeriodicStorage.getType() === "rand" ? this.getRandomMessage() : this.getNextMessage();
+        this.intervalResult.emit("IntervalOver", message);
+    }
+
+    private static getRandomMessage(): string {
         const messages = PeriodicStorage.getMessages();
         const randomIndex = Math.floor(Math.random() * messages.length);
-        const message = messages[randomIndex];
-        this.intervalResult.emit("IntervalOver", message);
+        return messages[randomIndex];
+    }
+
+    private static getNextMessage(): string {
+        const messages = PeriodicStorage.getMessages();
+        const message = messages[this.nextMessageCounter];
+        this.nextMessageCounter++;
+        if (this.nextMessageCounter == messages.length){
+            this.nextMessageCounter = 0;
+        }
+        return message;
     }
 }
