@@ -18,8 +18,9 @@ export class TarotMessage implements Message {
     private async startTarot() {
         TarotService.startTimer();
         try {
-            const res = await axios.post('http://localhost:8080/start')
-            console.log(res.data)
+            await axios.post('http://localhost:8080/start', {
+                user: this.username
+            });
         } catch (e) {
             console.log('This is the error: ', e);
         }

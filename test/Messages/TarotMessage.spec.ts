@@ -14,7 +14,7 @@ describe('TarotMessage', () => {
     })
 
     describe('Tarot Message answers', () => {
-        it.each(["!tech-tarot","!tt"])('answers that tech tarot is %s', (command: string) => {
+        it.each(["!tech-tarot", "!tt"])('answers that tech tarot is %s', (command: string) => {
             const rawData = `:user123!user123@user123.tmi.twitch.tv PRIVMSG #thecodingbuddies :${command}`;
             const rawMessage = new RawMessage(rawData);
             const msg = new TarotMessage(rawMessage);
@@ -40,7 +40,7 @@ describe('TarotMessage', () => {
             });
             msg.answer();
 
-            expect(requestSpy).toHaveBeenCalledWith("http://localhost:8080/start");
+            expect(requestSpy).toHaveBeenCalledWith("http://localhost:8080/start", {"user": "user123"});
 
             requestSpy.mockRestore();
         });
