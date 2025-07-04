@@ -1,3 +1,3 @@
 abstract class Message {
-    abstract answer() : string;
+    abstract answer() : Promise<string>;
 }

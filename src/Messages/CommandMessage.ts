@@ -23,7 +23,7 @@ export class CommandMessage implements Message {
         }
     }
 
-    answer(): string {
+    async answer(): Promise<string> {
         CommandStorage.timeoutList.update();
         const foundCommand: Command = CommandStorage.getCommands()
             .find(command => command.name.split(' ')[0] === this.content.toLowerCase().split(' ')[0]);

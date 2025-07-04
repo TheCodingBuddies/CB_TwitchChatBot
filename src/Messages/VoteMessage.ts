@@ -45,7 +45,7 @@ export class VoteMessage implements Message {
         }
     }
 
-    answer(): string {
+    async answer(): Promise<string> {
         if (this.type === VoteType.UNKNOWN) {
             return "";
         }

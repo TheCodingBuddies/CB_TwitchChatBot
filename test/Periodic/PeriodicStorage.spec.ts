@@ -22,7 +22,7 @@ jest.mock('fs', () => {
     return {
         readFileSync: mockReadFileSync,
     }
-})
+});
 
 describe('PeriodicStorage', () => {
     beforeEach(() => {

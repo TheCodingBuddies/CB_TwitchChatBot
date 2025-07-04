@@ -36,7 +36,7 @@ describe("VotingService", () => {
         tick(durationInMs);
 
         VotingService.recentResult.on("lastVoteResult", (res) => {
-            expect(res).toEqual("Voting beendet! Option A hat gewonnen!");
+            expect(res).toEqual("Voting beendet! Option A hat gewonnen! Es gab keine Stimmen.");
             done();
         });
 
@@ -47,7 +47,7 @@ describe("VotingService", () => {
             const durationInMs = 60000;
             startTestSession(durationInMs);
             VotingService.recentResult.on("lastVoteResult", (res) => {
-                expect(res).toEqual("Voting firstSession beendet! Option A hat gewonnen!");
+                expect(res).toEqual("Voting firstSession beendet! Option A hat gewonnen! Es gab keine Stimmen.");
                 done();
             });
             tick(durationInMs);
@@ -58,7 +58,7 @@ describe("VotingService", () => {
             startTestSession(durationInMs);
             VotingService.vote("aUser", "firstSession", "A");
             VotingService.recentResult.on("lastVoteResult", (res) => {
-                expect(res).toEqual("Voting firstSession beendet! Option A hat gewonnen!");
+                expect(res).toEqual("Voting firstSession beendet! Option A hat gewonnen! 100% für A, 0% für B.");
                 done();
             });
             tick(durationInMs);
@@ -70,7 +70,7 @@ describe("VotingService", () => {
             VotingService.start(sessionName, durationInMs, ["A", "B"]);
             VotingService.vote("aUser", "secondSession", "B");
             VotingService.recentResult.on("lastVoteResult", (res) => {
-                expect(res).toEqual("Voting secondSession beendet! Option B hat gewonnen!");
+                expect(res).toEqual("Voting secondSession beendet! Option B hat gewonnen! 100% für B, 0% für A.");
                 done();
             });
             tick(durationInMs);
@@ -82,7 +82,7 @@ describe("VotingService", () => {
             VotingService.vote("userB", "firstSession", "B");
             VotingService.vote("userA", "firstSession", "A");
             VotingService.recentResult.on("lastVoteResult", (res) => {
-                expect(res).toEqual("Voting firstSession beendet! Option B hat gewonnen!");
+                expect(res).toEqual("Voting firstSession beendet! Option B hat gewonnen! 50% für B, 50% für A.");
                 done();
             });
             tick(durationInMs);
@@ -95,7 +95,7 @@ describe("VotingService", () => {
             VotingService.vote("aUser", "firstSession", "C");
             VotingService.vote("aUser", "firstSession", "C");
             VotingService.recentResult.on("lastVoteResult", (res) => {
-                expect(res).toEqual("Voting firstSession beendet! Option A hat gewonnen!");
+                expect(res).toEqual("Voting firstSession beendet! Option A hat gewonnen! 100% für A, 0% für B.");
                 done();
             });
             tick(durationInMs);
@@ -106,7 +106,7 @@ describe("VotingService", () => {
             startTestSession(durationInMs);
             VotingService.vote("aUser", "notExistingSession", "B");
             VotingService.recentResult.on("lastVoteResult", (res) => {
-                expect(res).toEqual("Voting firstSession beendet! Option A hat gewonnen!");
+                expect(res).toEqual("Voting firstSession beendet! Option A hat gewonnen! Es gab keine Stimmen.");
                 done();
             });
             tick(durationInMs);
@@ -121,7 +121,7 @@ describe("VotingService", () => {
             VotingService.vote("userB", "firstSession", "B");
             VotingService.vote("userC", "firstSession", "B");
             VotingService.recentResult.on("lastVoteResult", (res) => {
-                expect(res).toEqual("Voting firstSession beendet! Option B hat gewonnen!");
+                expect(res).toEqual("Voting firstSession beendet! Option B hat gewonnen! 67% für B, 33% für A.");
                 done();
             });
             tick(durationInMs);

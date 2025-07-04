@@ -15,23 +15,25 @@ export class TarotMessage implements Message {
         this.command = parts[0];
     }
 
-    private async startTarot() {
+    private async startTarot(): Promise<boolean> {
         TarotService.startTimer();
         try {
-            await axios.post('http://localhost:8080/start', {
+            const response = await axios.post('http://localhost:8080/start', {
                 user: this.username
             });
-        } catch (e) {
-            console.log('This is the error: ', e);
+            return response.status === 200;
+        } catch (err) {
+            return false;
         }
-        /* ToDo: return if successful */
     }
 
-    answer(): string {
+    async answer(): Promise<string> {
         let answer = 'Die Zukunft kann gerade nicht';
         if (!TarotService.isSessionActive()) {
-            this.startTarot().then(); // todo: different answer if not successful
-            answer = `Deine Tech-Zukunft erfährst du jetzt ${this.username}!`;
+            const successful = await this.startTarot();
+            answer = successful
+                ? `Deine Tech-Zukunft erfährst du jetzt ${this.username}!`
+                : 'Die Zukunft hat gerade geschlossen!';
         }
         return new PrivateMessage(answer).content;
     }

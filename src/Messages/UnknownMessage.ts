@@ -6,7 +6,7 @@ export class UnknownMessage implements Message {
         this.content = rawMessage;
     }
 
-    answer(): string {
+    async answer(): Promise<string> {
         console.log(`${this.content} is unknown --> rejected`);
         return "";
     }

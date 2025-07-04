@@ -65,11 +65,12 @@ export class CBWebSocket {
             .split('\r\n')
             .filter(raw => raw.trim().length > 0);
 
-        allRawData.forEach(rawData => {
+        allRawData.forEach(async rawData => {
             let rawMessage: RawMessage = new RawMessage(rawData);
             let message: Message = MessageFactory.process(rawMessage);
             if (message?.answer) {
-                this.client.send(message.answer());
+                const answer = await message.answer()
+                this.client.send(answer);
             }
         });
     }

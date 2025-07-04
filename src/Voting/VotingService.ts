@@ -68,7 +68,12 @@ export class VotingService {
     }
 
     private static summaryOf(id: string, session: VoteSession): string {
-        const summaryMessage: string = (id !== "default") ? `Voting ${id} beendet` : `Voting beendet`
-        return `${summaryMessage}! Option ${session.options[0].name} hat gewonnen!`
+        const summaryMessage: string = (id !== "default") ? `Voting ${id} beendet` : `Voting beendet`;
+        const allVotes = session.participants.length;
+        let distribution: string = "Es gab keine Stimmen";
+        if (allVotes !== 0) {
+            distribution = session.options.map(o => `${Math.round(o.count / allVotes * 100)}% für ${o.name}`).join(", ");
+        }
+        return `${summaryMessage}! Option ${session.options[0].name} hat gewonnen! ${distribution}.`
     }
 }
