@@ -1,5 +1,5 @@
 export class TarotService {
-    static readonly sessionTimeMs: number = 10_000; //10 * 60 * 1000;
+    static readonly sessionTimeMs: number = 10 * 60 * 1000; //10 * 60 * 1000;
     private static activeSession: boolean = false;
 
     static startTimer(): void {

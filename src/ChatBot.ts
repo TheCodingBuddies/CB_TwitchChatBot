@@ -1,6 +1,7 @@
-import {CBWebSocket} from "./CBWebSocket";
 import {CommandStorage} from "./Commands/CommandStorage";
 import {PeriodicStorage} from "./Periodic/PeriodicStorage";
+import {CBEventWebsocket} from "./CBEventWebsocket";
+import {CBChatWebsocket} from "./CBChatWebsocket";
 
 export class ChatBot {
 
@@ -15,6 +16,7 @@ export class ChatBot {
     }
 
     start() {
-        new CBWebSocket("thecodingbuddies", true);
+        new CBChatWebsocket("thecodingbuddies", true);
+        // new CBEventWebsocket("thecodingbuddies", true);
     }
 }

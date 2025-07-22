@@ -6,9 +6,9 @@ import {RawMessage} from "./Messages/RawMessage";
 import {TokenUpdater} from "./Auth/TokenUpdater";
 import {PeriodicService} from "./Periodic/PeriodicService";
 
-export class CBWebSocket {
+export class CBChatWebsocket {
 
-    readonly TWITCH_CHANNEL = "ws://irc-ws.chat.twitch.tv:80";
+    readonly TWITCH_CHAT_CHANNEL = "ws://irc-ws.chat.twitch.tv:80";
     readonly LAST_VOTE_RESULT = "lastVoteResult";
     readonly VOTE_REMINDER = "VoteReminder";
     readonly INTERVAL_OVER = "IntervalOver";
@@ -18,7 +18,7 @@ export class CBWebSocket {
     useCapabilities: boolean;
 
     constructor(channel: string, useCapabilities: boolean) {
-        this.client = new WebSocket(this.TWITCH_CHANNEL);
+        this.client = new WebSocket(this.TWITCH_CHAT_CHANNEL);
         this.channel = channel;
         this.token = TokenUpdater.loadTokenData().access_token;
         this.useCapabilities = useCapabilities;
