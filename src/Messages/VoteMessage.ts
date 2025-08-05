@@ -27,6 +27,7 @@ export class VoteMessage implements Message {
         - highlight vote name
         - Make Vote duration configurable
         - only host is able to start vote? (and mods?)
+        - vote-like -> ein anderer user
      */
     constructor(message: RawMessage) {
         this.type = this.getType(message.content.message);

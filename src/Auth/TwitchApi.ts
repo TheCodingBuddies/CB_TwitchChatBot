@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
+import {SubscriptionEvent} from "../SubscriptionEvents/SubscriptionEvent";
 
 export class TwitchApi {
 
@@ -44,4 +45,16 @@ export class TwitchApi {
             }
         });
     }
+
+    static async subscribeToChannel(subscriptionEvent: SubscriptionEvent) {
+        return axios.post('https://api.twitch.tv/helix/eventsub/subscriptions', subscriptionEvent, {
+            headers: {
+                "Content-Type": "application/json",
+                "Client-Id": process.env.CLIENT_ID,
+                "Authorization": `Bearer ${process.env.USER_ACCESS_TOKEN}`
+            }
+        });
+    }
+
+
 }

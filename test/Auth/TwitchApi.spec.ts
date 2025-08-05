@@ -1,5 +1,6 @@
 import axios from "axios";
 import {TwitchApi} from "../../src/Auth/TwitchApi";
+import {SubscriptionEvent} from "../../src/SubscriptionEvents/SubscriptionEvent";
 
 
 jest.mock("axios");
@@ -12,6 +13,7 @@ describe('TwitchApi', () => {
         process.env.CLIENT_SECRET = 'clientXXXsecret';
         process.env.AUTH_CODE = 'authCode';
         process.env.REDIRECT_URI = 'http://localhost:5555';
+        process.env.USER_ACCESS_TOKEN = 'userAccessToken';
     });
 
     it('does the right api call to get user auth information', async () => {
@@ -89,5 +91,26 @@ describe('TwitchApi', () => {
             }
         });
         expect(response).toEqual(mockedResponse);
+    });
+
+    it('subscribes on the right event channel', async () => {
+        //todo: NEED TO TEST AND REFACTOR NEW TECH TAROT FEATURE
+        const subscriptionEvent: SubscriptionEvent = {
+            type: "channel.channel_points_custom_reward_redemption.add",
+            version: "1",
+            condition: {
+                broadcaster_user_id: "channel_id",
+            },
+            transport: {
+                method: "websocket",
+                session_id: "the_session_id"
+            }
+        }
+        await TwitchApi.subscribeToChannel(subscriptionEvent)
+        expect(mockedAxios.post).toHaveBeenCalledWith("https://api.twitch.tv/helix/eventsub/subscriptions", subscriptionEvent, {headers: {
+            "Content-Type": "application/json",
+            "Client-Id": "client123id",
+            "Authorization": "Bearer userAccessToken"
+            }});
     });
 })

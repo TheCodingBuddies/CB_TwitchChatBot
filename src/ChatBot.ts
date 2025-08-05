@@ -16,7 +16,7 @@ export class ChatBot {
     }
 
     start() {
-        new CBChatWebsocket("thecodingbuddies", true);
-        // new CBEventWebsocket("thecodingbuddies", true);
+        const ircChatWs = new CBChatWebsocket("thecodingbuddies", true);
+        new CBEventWebsocket("thecodingbuddies", ircChatWs.client);
     }
 }
