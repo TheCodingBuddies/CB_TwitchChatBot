@@ -94,7 +94,6 @@ describe('TwitchApi', () => {
     });
 
     it('subscribes on the right event channel', async () => {
-        //todo: NEED TO TEST AND REFACTOR NEW TECH TAROT FEATURE
         const subscriptionEvent: SubscriptionEvent = {
             type: "channel.channel_points_custom_reward_redemption.add",
             version: "1",

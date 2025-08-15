@@ -1,9 +1,8 @@
 import WebSocket, {RawData} from "ws"
 import assert from "node:assert";
-import axios from "axios";
 import {SubscriptionEvent} from "./SubscriptionEvents/SubscriptionEvent";
-import {PrivateMessage} from "./Messages/PrivateMessage";
 import {TarotService} from "./Tarot/TarotService";
+import {TwitchApi} from "./Auth/TwitchApi";
 
 export class CBEventWebsocket {
 
@@ -43,15 +42,7 @@ export class CBEventWebsocket {
                         session_id: json.payload.session.id
                     }
                 }
-                axios.post('https://api.twitch.tv/helix/eventsub/subscriptions', customRewardEvent, {
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Client-Id": process.env.CLIENT_ID,
-                        "Authorization": `Bearer ${process.env.USER_ACCESS_TOKEN}`
-                    }
-                }).then(r => {
-                    console.log(r.status);
-                });
+                await TwitchApi.subscribeToChannel(customRewardEvent);
                 break;
             case 'session_reconnect':
                 console.log("session_reconnect received");
@@ -59,7 +50,8 @@ export class CBEventWebsocket {
             case 'notification':
                 if (json.payload.event.reward.title === "Tech Tarot") {
                     this.username = json.payload.event.user_name;
-                    await this.initializeTechTarotSession();
+                    const answer = await TarotService.initializeTechTarotSessionFor(this.username);
+                    this.chatClient.send(answer)
                 }
                 break;
             case 'session_keepalive':
@@ -67,28 +59,5 @@ export class CBEventWebsocket {
                 break;
             default:
         }
-    }
-
-    private async startTarot(): Promise<boolean> {
-        TarotService.startTimer();
-        try {
-            const response = await axios.post('http://localhost:8080/start', {
-                user: this.username
-            });
-            return response.status === 200;
-        } catch (err) {
-            return false;
-        }
-    }
-
-    private async initializeTechTarotSession() {
-        let answer = 'Die Zukunft kann gerade nicht';
-        if (!TarotService.isSessionActive()) {
-            const successful = await this.startTarot();
-            answer = successful
-                ? `Deine Tech-Zukunft erfährst du jetzt ${this.username}!`
-                : 'Die Zukunft hat gerade geschlossen!';
-        }
-        return new PrivateMessage(answer).content;
     }
 }

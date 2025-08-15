@@ -36,6 +36,7 @@ describe('TarotMessage', () => {
     beforeEach(() => {
         process.env.NICKNAME = "bot";
         process.env.CHANNEL = "thecodingbuddies";
+        process.env.CHANNEL_POINT_NAME = "Kanalpunkte";
         TarotService.isSessionActive = () => false;
         postCallSuccessful = true;
     })
@@ -45,39 +46,7 @@ describe('TarotMessage', () => {
             const rawData = `:user123!user123@user123.tmi.twitch.tv PRIVMSG #thecodingbuddies :${command}`;
             const rawMessage = new RawMessage(rawData);
             const msg = new TarotMessage(rawMessage);
-            expect(await msg.answer()).toEqual(":bot PRIVMSG #thecodingbuddies :Deine Tech-Zukunft erfährst du jetzt user123!");
-        });
-
-        it('answers that tech tarot is already in a tarot session', async () => {
-            TarotService.isSessionActive = () => true;
-            const rawData = ":user123!user123@user123.tmi.twitch.tv PRIVMSG #thecodingbuddies :!tech-tarot";
-            const rawMessage = new RawMessage(rawData);
-            const msg = new TarotMessage(rawMessage);
-            expect(await msg.answer()).toEqual(":bot PRIVMSG #thecodingbuddies :Die Zukunft kann gerade nicht");
-        });
-
-        it('answers that tech tarot is not available right now', async () => {
-            postCallSuccessful = false;
-            const rawData = ":user123!user123@user123.tmi.twitch.tv PRIVMSG #thecodingbuddies :!tech-tarot";
-            const rawMessage = new RawMessage(rawData);
-            const msg = new TarotMessage(rawMessage);
-            expect(await msg.answer()).toEqual(":bot PRIVMSG #thecodingbuddies :Die Zukunft hat gerade geschlossen!");
-        });
-    });
-
-    describe('sending REST calls to the Tarot Backend', () => {
-        it('starts a new tarot game via REST', () => {
-            const rawData = ":user123!user123@user123.tmi.twitch.tv PRIVMSG #thecodingbuddies :!tech-tarot";
-            const rawMessage = new RawMessage(rawData);
-            const msg = new TarotMessage(rawMessage);
-            const requestSpy = jest.spyOn(axios, "post").mockImplementation((url) => {
-                return {} as any;
-            });
-            msg.answer();
-
-            expect(requestSpy).toHaveBeenCalledWith("http://localhost:8080/start", {"user": "user123"});
-
-            requestSpy.mockRestore();
+            expect(await msg.answer()).toEqual(":bot PRIVMSG #thecodingbuddies :Nutze deine Kanalpunkte um deine Tech-Zukunft zu erfahren!");
         });
     });
 });

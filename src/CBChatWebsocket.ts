@@ -8,7 +8,7 @@ import {PeriodicService} from "./Periodic/PeriodicService";
 
 export class CBChatWebsocket {
 
-    readonly TWITCH_CHAT_CHANNEL = "ws://irc-ws.chat.twitch.tv:80";
+    readonly TWITCH_CHAT_CHANNEL = "wss://irc-ws.chat.twitch.tv:443";
     readonly LAST_VOTE_RESULT = "lastVoteResult";
     readonly VOTE_REMINDER = "VoteReminder";
     readonly INTERVAL_OVER = "IntervalOver";
