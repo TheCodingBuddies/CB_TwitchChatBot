@@ -55,6 +55,4 @@ export class TwitchApi {
             }
         });
     }
-
-
 }

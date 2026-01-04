@@ -17,19 +17,18 @@ describe('VoteMessage', () => {
                 expectedId = id;
                 expectedOptions = options;
             };
-            const rawMessage = new RawMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote-start [A,B]")
+            const rawMessage = new RawMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote-start 60 [A,B]")
             const voteMessage = new VoteMessage(rawMessage);
-            expect(expectedId).toEqual('default');
+            expect(expectedId).toEqual('Aktives Voting läuft');
             expect(expectedOptions).toEqual(["A", "B"]);
-            expect(await voteMessage.answer()).toEqual(":nickname PRIVMSG #thecodingbuddies :Voting started! Options are A,B");
+            expect(await voteMessage.answer()).toEqual(":nickname PRIVMSG #thecodingbuddies :Voting started! Optionen sind A,B");
         });
 
 
         it('vote on default session', async () => {
             let votedOption = "";
-            VotingService.vote = (user: string, id: string, choseOption: string) => {
-                if (id === "default")
-                    votedOption = choseOption;
+            VotingService.vote = (user: string, choseOption: string) => {
+                votedOption = choseOption;
             };
             const rawMessage = new RawMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote A")
             const voteMessage = new VoteMessage(rawMessage);
@@ -40,33 +39,40 @@ describe('VoteMessage', () => {
     });
 
     describe('specific session vote', () => {
-        it('start vote for Session with options A,B', async () => {
-            let votableOptions : string[] = [];
-            let choseDuration = 0;
+        it.each(['firstSession', '"Was geht ab?"'])
+        ('start vote for Session %s with options A,B', async (sessionName: string) => {
+            let votableOptions: string[] = ["A", "B"];
+            let choseDuration = 60_000;
+            let clearSessionName = sessionName.replace(/"/g, "");
             VotingService.start = (id: string, duration: number, options: string[]) => {
-                if (id === "firstSession") {
+                if (id === clearSessionName) {
                     choseDuration = duration;
                     votableOptions = options;
                 }
             };
-            const rawMessage = new RawMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote-start firstSession [A,B]")
+            const rawMessage = new RawMessage(`:user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote-start ${sessionName} 60 [A,B]`)
             const voteMessage = new VoteMessage(rawMessage);
-            expect(votableOptions).toEqual(["A","B"]);
+            expect(votableOptions).toEqual(["A", "B"]);
             expect(choseDuration).toEqual(60000);
-            expect(await voteMessage.answer()).toEqual(":nickname PRIVMSG #thecodingbuddies :Voting firstSession started! Options are A,B");
+            expect(await voteMessage.answer()).toEqual(`:nickname PRIVMSG #thecodingbuddies :Voting "${clearSessionName}" started! Optionen sind A,B`);
         });
 
         it('votes for option A on Session as given user', async () => {
             let votedOption = "";
-            VotingService.vote = (user: string, id: string, choseOption: string) => {
-                if (id === "firstSession")
-                    votedOption = choseOption;
+            VotingService.vote = (user: string, choseOption: string) => {
+                votedOption = choseOption;
             };
             const rawMessage = new RawMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote firstSession A")
             const voteMessage = new VoteMessage(rawMessage);
             expect(await voteMessage.answer()).toEqual("");
             expect(votedOption).toEqual("A");
         });
+    });
+
+    it('cancels a voting', async () => {
+        const rawMessage = new RawMessage(":user123!user123@user123.tmi.twitch.tv PRIVMSG #channel :!vote-cancel")
+        const voteMessage = new VoteMessage(rawMessage);
+        expect(await voteMessage.answer()).toEqual("");
     });
 
     it('does not start a new vote for Session without options', async () => {

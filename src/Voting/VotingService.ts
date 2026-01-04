@@ -1,4 +1,6 @@
 import EventEmitter from "events";
+import {VotingApi} from "./VotingApi";
+import {clearTimeout} from "node:timers";
 
 export interface VoteOption {
     name: string,
@@ -6,69 +8,91 @@ export interface VoteOption {
 }
 
 interface VoteSession {
+    name: string,
     duration: number,
     options: VoteOption[],
-    interval: NodeJS.Timeout,
+    timeout: NodeJS.Timeout,
     participants: string[]
 }
 
 export class VotingService {
 
-    static sessions: Map<string, VoteSession> = new Map<string, VoteSession>();
-    static readonly REMINDER_20_SECS = 20000;
+    static activeVoteSession: VoteSession;
+    static readonly REMINDER_20_SECS = 20_000;
     static recentResult: EventEmitter = new EventEmitter();
     static voteReminder: EventEmitter = new EventEmitter();
 
-    static vote(user: string, id: string, choseOption: string) {
-        const session: VoteSession = this.sessions.get(id);
-        if (session) {
-            const hasAlreadyVoted = session.participants.some(p => p === user)
+    static vote(user: string, choseOption: string) {
+        if (this.activeVoteSession) {
+            const hasAlreadyVoted = this.activeVoteSession.participants.some(p => p === user)
             if (hasAlreadyVoted)
                 return;
-            let option = session.options.find(option => option.name === choseOption);
+            let option: VoteOption = this.activeVoteSession.options.find(option => option.name === choseOption);
             if (option) {
                 option.count++;
-                session.options = session.options.sort((a, b) => a.count > b.count ? -1 : (a.count < b.count) ? 1 : 0);
-                session.participants.push(user);
+                this.activeVoteSession.options = this.activeVoteSession.options.sort((a, b) => a.count > b.count ? -1 : (a.count < b.count) ? 1 : 0);
+                this.activeVoteSession.participants.push(user);
+                VotingApi.updateOptions(this.activeVoteSession.options).then()
             }
         }
     }
 
     static start(id: string, durationInMs: number, options: string[]): void {
+        if (this.activeVoteSession) {
+            return;
+        }
         const reminderTime = durationInMs - this.REMINDER_20_SECS;
 
         setTimeout(() => {
             this.onFinish(id);
         }, durationInMs);
 
-        const interval: NodeJS.Timeout = setInterval(() => {
-            this.remindToVote(id);
-        }, reminderTime);
+        let reminderTimeout: NodeJS.Timeout;
+        if (durationInMs > 20_000) {
+            reminderTimeout = setTimeout(() => {
+                this.remindToVote(id);
+            }, reminderTime);
+        }
 
         const voteOptions: VoteOption[] = options.map(o => ({name: o, count: 0}));
-        this.sessions.set(id, {duration: durationInMs, options: voteOptions, interval: interval, participants: []});
+        this.activeVoteSession = {
+            name: id,
+            duration: durationInMs,
+            options: voteOptions,
+            timeout: reminderTimeout,
+            participants: []
+        }
+        VotingApi.startVoteOverlay(id, durationInMs / 1000, this.activeVoteSession.options).then()
     }
 
     static remindToVote(id: string) {
-        const remindMessage = `Voting Session ${id} endet in 20 Sekunden!`;
+        const remindMessage = `Voting Session "${id}" endet in 20 Sekunden!`;
         this.voteReminder.emit("VoteReminder", remindMessage);
     }
 
-    static isActive(id: string): boolean {
-        return this.sessions.has(id);
+    static isActive(): boolean {
+        return !!this.activeVoteSession;
+    }
+
+    static cancelVote() {
+        if (this.activeVoteSession) {
+            clearTimeout(this.activeVoteSession.timeout);
+            this.activeVoteSession = undefined;
+        }
+        VotingApi.cancelVoteOverlay().then();
     }
 
     private static onFinish(id: string): void {
-        let session = this.sessions.get(id);
-        if (session) {
-            clearInterval(session.interval);
-            this.sessions.delete(id);
-            this.recentResult.emit("lastVoteResult", this.summaryOf(id, session));
+        if (!this.activeVoteSession) {
+            return;
         }
+        clearTimeout(this.activeVoteSession.timeout);
+        this.recentResult.emit("lastVoteResult", this.summaryOf(id, this.activeVoteSession));
+        this.activeVoteSession = undefined;
     }
 
     private static summaryOf(id: string, session: VoteSession): string {
-        const summaryMessage: string = (id !== "default") ? `Voting ${id} beendet` : `Voting beendet`;
+        const summaryMessage: string = (id !== "Aktives Voting läuft") ? `Voting "${id}" beendet` : `Voting beendet`;
         const allVotes = session.participants.length;
         let distribution: string = "Es gab keine Stimmen";
         if (allVotes !== 0) {

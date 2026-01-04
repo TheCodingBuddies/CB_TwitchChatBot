@@ -5,8 +5,6 @@ import {VoteMessage} from "./VoteMessage";
 import {tarotCommandIdentifier, TarotMessage} from "./TarotMessage";
 import {PING, PRIVMSG, RawMessage} from "./RawMessage";
 
-const voteCommandIdentifier: string[] = ["!vote", "!vote-start"];
-
 export class MessageFactory {
     static process(rawMessage: RawMessage): Message {
         switch (rawMessage.content.command) {
@@ -24,7 +22,7 @@ export class MessageFactory {
 
         const command = text.split(" ")[0];
 
-        if (voteCommandIdentifier.includes(command)) {
+        if (command.startsWith("!vote")) {
             return new VoteMessage(message);
         }
         if (tarotCommandIdentifier.includes(command)) {
