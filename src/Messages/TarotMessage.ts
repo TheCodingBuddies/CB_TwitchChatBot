@@ -1,5 +1,6 @@
 import {PrivateMessage} from "./PrivateMessage";
 import {RawMessage} from "./RawMessage";
+import {ObsSceneSwitcher} from "../Obs/ObsSceneSwitcher";
 
 export const tarotCommandIdentifier: string[] = ["!tech-tarot", "!tt"];
 

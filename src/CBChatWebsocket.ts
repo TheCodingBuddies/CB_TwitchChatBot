@@ -60,19 +60,23 @@ export class CBChatWebsocket {
         this.client.send(`JOIN #${this.channel}`);
     }
 
-    private handleMessage(data: RawData) {
-        const allRawData: string[] = data.toString()
+    private async handleMessage(data: RawData) {
+        const allRawData = data.toString()
             .split('\r\n')
             .filter(raw => raw.trim().length > 0);
 
-        allRawData.forEach(async rawData => {
-            let rawMessage: RawMessage = new RawMessage(rawData);
-            let message: Message = MessageFactory.process(rawMessage);
-            if (message?.answer) {
-                const answer = await message.answer()
-                this.client.send(answer);
+        for (const rawData of allRawData) {
+            try {
+                const rawMessage = new RawMessage(rawData);
+                const message = MessageFactory.process(rawMessage);
+                if (message?.answer) {
+                    const answer = await message.answer();
+                    this.client.send(answer);
+                }
+            } catch (err) {
+                console.error("Failed to process IRC message:", rawData, err);
             }
-        });
+        }
     }
 
     private handleError(err: Error) {

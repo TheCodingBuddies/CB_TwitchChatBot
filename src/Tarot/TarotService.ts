@@ -1,5 +1,6 @@
 import axios from "axios";
 import {PrivateMessage} from "../Messages/PrivateMessage";
+import {ObsSceneSwitcher} from "../Obs/ObsSceneSwitcher";
 
 export class TarotService {
     static readonly sessionTimeMs: number = 40 * 60 * 1000;
@@ -31,6 +32,7 @@ export class TarotService {
     static async initializeTechTarotSessionFor(username: string) {
         let answer = 'Die Zukunft kann gerade nicht';
         if (!TarotService.isSessionActive()) {
+            await ObsSceneSwitcher.switchScene("TechTarot");
             const successful = await this.startTarotFor(username);
             answer = successful
                 ? `Deine Tech-Zukunft erfährst du jetzt ${username}!`
