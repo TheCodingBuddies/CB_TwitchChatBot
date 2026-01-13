@@ -5,6 +5,7 @@ import {PrivateMessage} from "./Messages/PrivateMessage";
 import {RawMessage} from "./Messages/RawMessage";
 import {TokenUpdater} from "./Auth/TokenUpdater";
 import {PeriodicService} from "./Periodic/PeriodicService";
+import {UserStatsService} from "./user/UserStatsService";
 
 export class CBChatWebsocket {
 
@@ -16,9 +17,11 @@ export class CBChatWebsocket {
     channel: string;
     readonly token: string;
     useCapabilities: boolean;
+    userStatsService: UserStatsService;
 
-    constructor(channel: string, useCapabilities: boolean) {
+    constructor(channel: string, userStatsService: UserStatsService, useCapabilities: boolean) {
         this.client = new WebSocket(this.TWITCH_CHAT_CHANNEL);
+        this.userStatsService = userStatsService;
         this.channel = channel;
         this.token = TokenUpdater.loadTokenData().access_token;
         this.useCapabilities = useCapabilities;
@@ -68,6 +71,11 @@ export class CBChatWebsocket {
         for (const rawData of allRawData) {
             try {
                 const rawMessage = new RawMessage(rawData);
+                try {
+                    await this.userStatsService.countMessage(rawMessage.content.prefix.nickname)
+                } catch (e) {
+                    console.log("Cannot count message");
+                }
                 const message = MessageFactory.process(rawMessage);
                 if (message?.answer) {
                     const answer = await message.answer();

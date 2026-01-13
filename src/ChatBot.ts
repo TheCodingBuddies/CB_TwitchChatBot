@@ -2,6 +2,9 @@ import {CommandStorage} from "./Commands/CommandStorage";
 import {PeriodicStorage} from "./Periodic/PeriodicStorage";
 import {CBEventWebsocket} from "./CBEventWebsocket";
 import {CBChatWebsocket} from "./CBChatWebsocket";
+import {UserStatsService} from "./user/UserStatsService";
+import {MemoryUserStatsStore} from "./user/MemoryUserStatsStore";
+import {createStatsHttpServer} from "./http/StatsController";
 
 export class ChatBot {
 
@@ -16,7 +19,9 @@ export class ChatBot {
     }
 
     start() {
-        const ircChatWs = new CBChatWebsocket("thecodingbuddies", true);
+        const userStatsService = new UserStatsService(new MemoryUserStatsStore());
+        createStatsHttpServer(userStatsService).listen(process.env.STATS_PORT ?? 4000)
+        const ircChatWs = new CBChatWebsocket("thecodingbuddies", userStatsService, true);
         new CBEventWebsocket("thecodingbuddies", ircChatWs.client);
     }
 }
