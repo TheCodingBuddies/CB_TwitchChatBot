@@ -5,7 +5,7 @@ import {PrivateMessage} from "./Messages/PrivateMessage";
 import {RawMessage} from "./Messages/RawMessage";
 import {TokenUpdater} from "./Auth/TokenUpdater";
 import {PeriodicService} from "./Periodic/PeriodicService";
-import {UserStatsService} from "./user/UserStatsService";
+import {UserStatsService} from "./User/UserStatsService";
 
 export class CBChatWebsocket {
 

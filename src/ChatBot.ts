@@ -2,8 +2,8 @@ import {CommandStorage} from "./Commands/CommandStorage";
 import {PeriodicStorage} from "./Periodic/PeriodicStorage";
 import {CBEventWebsocket} from "./CBEventWebsocket";
 import {CBChatWebsocket} from "./CBChatWebsocket";
-import {UserStatsService} from "./user/UserStatsService";
-import {MemoryUserStatsStore} from "./user/MemoryUserStatsStore";
+import {UserStatsService} from "./User/UserStatsService";
+import {MemoryUserStatsStore} from "./User/MemoryUserStatsStore";
 import {createStatsHttpServer} from "./http/StatsController";
 
 export class ChatBot {

@@ -14,7 +14,7 @@ describe('VotingApi', () => {
     it('starts the voting overlay', async () => {
         const options: VoteOption[] = [{name: "A", count: 0}, {name: "B", count: 0}];
         await VotingApi.startVoteOverlay("VoteName", 60, options)
-        expect(mockedAxios.post).toHaveBeenCalledWith("http://localhost:5173/api/voting/start", {
+        expect(mockedAxios.post).toHaveBeenCalledWith("http://localhost:5599/api/voting/start", {
             name: "VoteName",
             durationInSec: 60,
             options: options
@@ -24,13 +24,13 @@ describe('VotingApi', () => {
     it('adds a vote to overlay voting', async () => {
         const options: VoteOption[] = [{name: "A", count: 100}, {name: "B", count: 200}];
         await VotingApi.updateOptions(options);
-        expect(mockedAxios.post).toHaveBeenCalledWith("http://localhost:5173/api/voting/vote", {
+        expect(mockedAxios.post).toHaveBeenCalledWith("http://localhost:5599/api/voting/vote", {
             options: options
         })
     });
 
     it('cancels a voting overlay', async () => {
         await VotingApi.cancelVoteOverlay();
-        expect(mockedAxios.post).toHaveBeenCalledWith("http://localhost:5173/api/voting/cancel")
+        expect(mockedAxios.post).toHaveBeenCalledWith("http://localhost:5599/api/voting/cancel")
     });
 });

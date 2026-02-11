@@ -1,4 +1,4 @@
-import {MemoryUserStatsStore} from "../../src/user/MemoryUserStatsStore";
+import {MemoryUserStatsStore} from "../../src/User/MemoryUserStatsStore";
 
 describe('MemoryUserStatsStore', () => {
 

@@ -1,5 +1,5 @@
-import {UserStatsService} from "../../src/user/UserStatsService";
-import {MemoryUserStatsStore} from "../../src/user/MemoryUserStatsStore";
+import {UserStatsService} from "../../src/User/UserStatsService";
+import {MemoryUserStatsStore} from "../../src/User/MemoryUserStatsStore";
 
 describe('UserStatsService', () => {
     it('counts messages for a user', async () => {

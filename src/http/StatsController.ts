@@ -1,5 +1,5 @@
 import express from "express";
-import {UserStatsService} from "../user/UserStatsService";
+import {UserStatsService} from "../User/UserStatsService";
 
 export function createStatsHttpServer(userStatsService: UserStatsService) {
     const app = express();

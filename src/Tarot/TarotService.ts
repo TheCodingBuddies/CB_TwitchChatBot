@@ -32,7 +32,7 @@ export class TarotService {
     static async initializeTechTarotSessionFor(username: string) {
         let answer = 'Die Zukunft kann gerade nicht';
         if (!TarotService.isSessionActive()) {
-            await ObsSceneSwitcher.switchScene("TechTarot");
+            await ObsSceneSwitcher.switchScene(process.env.TECH_TAROT_SCENE_NAME);
             const successful = await this.startTarotFor(username);
             answer = successful
                 ? `Deine Tech-Zukunft erfährst du jetzt ${username}!`

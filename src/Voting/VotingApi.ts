@@ -2,7 +2,7 @@ import axios from "axios";
 import {VoteOption} from "./VotingService";
 
 export class VotingApi {
-    private static readonly baseUrl = "http://localhost:5173/api/voting"
+    private static readonly baseUrl = "http://localhost:5599/api/voting"
 
     constructor() {
     }
