@@ -20,7 +20,7 @@ export class TarotService {
     private static async startTarotFor(username: string): Promise<boolean> {
         TarotService.startTimer();
         try {
-            const response = await axios.post('http://localhost:8080/start', {
+            const response = await axios.post('http://localhost:5599/api/tech-tarot/start', {
                 user: username
             });
             return response.status === 200;

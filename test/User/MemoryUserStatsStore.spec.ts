@@ -14,7 +14,7 @@ describe('MemoryUserStatsStore', () => {
             ...stats,
             messageCount: 5,
         }));
-        expect(stats).toEqual({userId: 'test-user', messageCount: 5,});
+        expect(stats).toEqual({userId: 'test-user', messageCount: 5, raided: false});
     });
 
     it('update user stat if exists', async () => {
@@ -22,12 +22,14 @@ describe('MemoryUserStatsStore', () => {
         await store.updateStats('test-user', (stats) => ({
             ...stats,
             messageCount: stats.messageCount + 2,
+            raided: false
         }));
         const stats = await store.updateStats('test-user', (stats) => ({
             ...stats,
             messageCount: stats.messageCount + 2,
+            raided: true
         }));
-        expect(stats).toEqual({userId: 'test-user', messageCount: 4});
+        expect(stats).toEqual({userId: 'test-user', messageCount: 4, raided: true});
     });
 
     it('get specific user stat', async () => {
@@ -41,7 +43,7 @@ describe('MemoryUserStatsStore', () => {
             messageCount: 1,
         }));
         const user1Stats = await store.getStats('test-user-1');
-        expect(user1Stats).toEqual({userId: 'test-user-1', messageCount: 1,});
+        expect(user1Stats).toEqual({userId: 'test-user-1', messageCount: 1, raided: false});
     });
 
     it('get nothing for non existing user stat', async () => {
@@ -61,6 +63,6 @@ describe('MemoryUserStatsStore', () => {
         }));
         await store.deleteStats('test-user');
 
-        expect(await store.getAllStats()).toEqual([{userId: 'test-user-2', messageCount: 1}]);
+        expect(await store.getAllStats()).toEqual([{userId: 'test-user-2', messageCount: 1, raided: false}]);
     });
 });

@@ -22,6 +22,6 @@ export class ChatBot {
         const userStatsService = new UserStatsService(new MemoryUserStatsStore());
         createStatsHttpServer(userStatsService).listen(process.env.STATS_PORT ?? 4000)
         const ircChatWs = new CBChatWebsocket("thecodingbuddies", userStatsService, true);
-        new CBEventWebsocket("thecodingbuddies", ircChatWs.client);
+        new CBEventWebsocket("thecodingbuddies", ircChatWs.client, userStatsService);
     }
 }

@@ -2,6 +2,7 @@
 export interface UserStats {
     userId: string;
     messageCount: number;
+    raided: boolean;
 }
 
 export interface UserStatsStore {

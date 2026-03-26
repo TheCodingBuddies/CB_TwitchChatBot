@@ -57,7 +57,7 @@ export class CBChatWebsocket {
         this.client.send(`PASS oauth:${this.token}`);
         this.client.send(`NICK ${process.env.NICKNAME}`);
         const littleCaps = `CAP REQ :twitch.tv/commands`;
-        const fullCaps = 'CAP REQ :twitch.tv/tags CAP REQ :twitch.tv/commands twitch.tv/membership';
+        const fullCaps = `CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership`;
         const caps = this.useCapabilities ? fullCaps : littleCaps;
         this.client.send(caps);
         this.client.send(`JOIN #${this.channel}`);
@@ -71,11 +71,7 @@ export class CBChatWebsocket {
         for (const rawData of allRawData) {
             try {
                 const rawMessage = new RawMessage(rawData);
-                try {
-                    await this.userStatsService.countMessage(rawMessage.content.prefix.nickname)
-                } catch (e) {
-                    console.log("Cannot count message");
-                }
+                await this.countMessage(rawMessage);
                 const message = MessageFactory.process(rawMessage);
                 if (message?.answer) {
                     const answer = await message.answer();
@@ -83,6 +79,19 @@ export class CBChatWebsocket {
                 }
             } catch (err) {
                 console.error("Failed to process IRC message:", rawData, err);
+            }
+        }
+    }
+
+    private async countMessage(rawMessage: RawMessage) {
+        if (rawMessage.isPrivateMessage()) {
+            const text = rawMessage.getText()
+            if (text.length > 0) {
+                try {
+                    await this.userStatsService.countMessage(rawMessage.getName());
+                } catch (e) {
+                    console.log("Cannot count message");
+                }
             }
         }
     }

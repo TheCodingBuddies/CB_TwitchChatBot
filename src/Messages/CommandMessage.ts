@@ -13,7 +13,7 @@ export class CommandMessage implements Message {
 
     constructor(message: RawMessage) {
         try {
-            this.username = message.content.prefix.nickname;
+            this.username = message.getName();
             this.author = this.username;
             this.channel = message.content.channel;
             this.content = message.content.message;

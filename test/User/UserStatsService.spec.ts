@@ -6,7 +6,13 @@ describe('UserStatsService', () => {
         const userStatsService = new UserStatsService(new MemoryUserStatsStore());
         await userStatsService.countMessage("test-user");
         await userStatsService.countMessage("test-user");
-        expect(await userStatsService.getStatsFor("test-user")).toEqual({userId: 'test-user', messageCount: 2});
+        expect(await userStatsService.getStatsFor("test-user")).toEqual({userId: 'test-user', messageCount: 2, raided: false});
+    });
+
+    it('marks a raid for a user', async () => {
+        const userStatsService = new UserStatsService(new MemoryUserStatsStore());
+        await  userStatsService.markRaid("test-user");
+        expect(await userStatsService.getStatsFor("test-user")).toEqual({userId: 'test-user', messageCount: 0, raided: true});
     });
 
     it('gets all stats', async () => {
@@ -16,8 +22,8 @@ describe('UserStatsService', () => {
         await userStatsService.countMessage("other-user");
 
         expect(await userStatsService.getAllStats()).toEqual([
-            {userId: 'a-user', messageCount: 2},
-            {userId: 'other-user', messageCount: 1}
+            {userId: 'a-user', messageCount: 2, raided: false},
+            {userId: 'other-user', messageCount: 1, raided: false}
         ]);
     });
 
@@ -29,7 +35,7 @@ describe('UserStatsService', () => {
         await userStatsService.deleteStats("a-user");
 
         expect(await userStatsService.getAllStats()).toEqual([
-            {userId: 'other-user', messageCount: 1}
+            {userId: 'other-user', messageCount: 1, raided: false}
         ]);
     });
 
@@ -38,7 +44,6 @@ describe('UserStatsService', () => {
         countALotOfMessages(userStatsService);
 
         const credits = await userStatsService.getCredits();
-        expect(credits.length).toEqual(1);
         expect(credits[0].title).toEqual(`Die 15 stärksten Chatter`);
         expect(credits[0].names.length).toEqual(15);
         expect(credits[0].names[0]).toEqual('user-20');
@@ -58,8 +63,21 @@ describe('UserStatsService', () => {
         expect(credits[0].names[0]).toEqual('user-2');
         expect(credits[0].names[1]).toEqual('user-1');
         expect(credits[0].names[2]).toEqual('user-3');
+    });
 
+    it('gets credits for all raiders', async () => {
+        const memoryUserStatsStore = new MemoryUserStatsStore();
+        await memoryUserStatsStore.updateStats('user-1', (stats) => ({...stats, raided: true}));
+        await memoryUserStatsStore.updateStats('user-2', (stats) => ({...stats, raided: true}));
+        await memoryUserStatsStore.updateStats('user-3', (stats) => ({...stats, raided: true}));
+        const userStatsService = new UserStatsService(memoryUserStatsStore);
 
+        const credits = await userStatsService.getCredits();
+        expect(credits[1].title).toEqual(`Danke für eure Raids`);
+        expect(credits[1].names.length).toEqual(3);
+        expect(credits[1].names[0]).toEqual('user-1');
+        expect(credits[1].names[1]).toEqual('user-2');
+        expect(credits[1].names[2]).toEqual('user-3');
     });
 
     function countALotOfMessages(userStatsService: UserStatsService) {

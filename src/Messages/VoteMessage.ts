@@ -26,15 +26,13 @@ export class VoteMessage implements Message {
 
     /*
         ToDo:
-        - help answer on wrong vote commands?
         - highlight vote name
-        - Make Vote duration configurable
         - only host is able to start vote? (and mods?)
         - vote-like -> ein anderer user
      */
     constructor(message: RawMessage) {
         let parts: string[] = message.content.message.match(/("[^"]+"|\[[^\]]+\]|\S+)/g);
-        this.votingUsername = message.content.prefix.nickname;
+        this.votingUsername = message.getName();
         this.voteCommand = parts[0];
         this.type = this.getType(message.content.message);
         this.sessionName = this.extractSessionName(parts).replace(/"/g, "");

@@ -27,6 +27,20 @@ export class RawMessage {
         this.content = this.parse(rawData);
     }
 
+    isPrivateMessage(): boolean {
+        return this.content.command === PRIVMSG;
+    }
+
+    getName(): string {
+        return this.content.tags?.["display-name"]
+            || this.content.prefix?.nickname
+            || "";
+    }
+
+    getText(): string {
+        return this.content.message?.trim() ?? "";
+    }
+
     private parse(rawData: string): IrcMessage {
         const result: IrcMessage = {raw: rawData, command: ""};
         let rest = rawData;

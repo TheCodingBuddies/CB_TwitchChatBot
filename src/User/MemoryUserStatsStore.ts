@@ -4,9 +4,10 @@ export class MemoryUserStatsStore implements UserStatsStore {
     private readonly stats: Map<string, UserStats> = new Map<string, UserStats>();
 
     async updateStats(userId: string, updater: (stats: UserStats) => UserStats): Promise<UserStats> {
-        const current = this.stats.get(userId) ?? {
+        const current:UserStats = this.stats.get(userId) ?? {
             userId,
-            messageCount: 0
+            messageCount: 0,
+            raided: false
         };
         const updatedStats = updater({...current});
         this.stats.set(userId, updatedStats);

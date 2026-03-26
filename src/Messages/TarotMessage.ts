@@ -9,7 +9,7 @@ export class TarotMessage implements Message {
 
     constructor(message: RawMessage) {
         let parts: string[] = message.content.message.split(' ');
-        this.username = message.content.prefix.nickname
+        this.username = message.getName()
         this.command = parts[0];
     }
 

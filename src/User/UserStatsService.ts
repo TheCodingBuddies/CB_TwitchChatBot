@@ -19,6 +19,13 @@ export class UserStatsService {
         }
     }
 
+    async markRaid(userId: string): Promise<UserStats> {
+        return this.store.updateStats(userId, (stats) => ({
+            ...stats,
+            raided: true,
+        }));
+    }
+
     async getStatsFor(userId: string): Promise<UserStats | null> {
         return this.store.getStats(userId);
     }
@@ -30,11 +37,16 @@ export class UserStatsService {
     async getCredits(): Promise<CreditCategory[]> {
         let credits: CreditCategory[] = [];
         const stats = await this.getAllStats();
-        let names: string[] = stats.slice()
+        let chatterNames: string[] = stats.slice()
             .sort((a,b)=> b.messageCount - a.messageCount)
-            .slice(0, 15)
+            .filter(entry => entry.messageCount > 0)
+            .slice(0, 10)
             .map(entry => entry.userId);
-        credits.push({title: `Die ${Math.min(names.length, 15)} stärksten Chatter`, names: names});
+        credits.push({title: `Die ${Math.min(chatterNames.length, 10)} stärksten Chatter`, names: chatterNames});
+        let raiderNames: string[] = stats.slice()
+            .filter(entry => entry.raided)
+            .map(entry => entry.userId);
+        credits.push({title: `Danke für eure Raids`, names: raiderNames});
 
         return credits;
 
