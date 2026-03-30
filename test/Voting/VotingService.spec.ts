@@ -108,6 +108,18 @@ describe("VotingService", () => {
             tick(durationInMs);
         });
 
+        it('votes for option b after start Voting and B wins because option are case insensitive', (done: DoneCallback) => {
+            const durationInMs = 60000;
+            const sessionName = "secondSession";
+            VotingService.start(sessionName, durationInMs, ["A", "B"]);
+            VotingService.vote("aUser", "b");
+            VotingService.recentResult.on("lastVoteResult", (res) => {
+                expect(res).toEqual('Voting "secondSession" beendet! Option B hat gewonnen! 100% für B, 0% für A.');
+                done();
+            });
+            tick(durationInMs);
+        });
+
         it('votes for both options, first option voted wins', (done: DoneCallback) => {
             const durationInMs = 60000;
             startTestSession(durationInMs);

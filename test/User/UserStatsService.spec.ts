@@ -6,13 +6,21 @@ describe('UserStatsService', () => {
         const userStatsService = new UserStatsService(new MemoryUserStatsStore());
         await userStatsService.countMessage("test-user");
         await userStatsService.countMessage("test-user");
-        expect(await userStatsService.getStatsFor("test-user")).toEqual({userId: 'test-user', messageCount: 2, raided: false});
+        expect(await userStatsService.getStatsFor("test-user")).toEqual({
+            userId: 'test-user',
+            messageCount: 2,
+            raided: false
+        });
     });
 
     it('marks a raid for a user', async () => {
         const userStatsService = new UserStatsService(new MemoryUserStatsStore());
-        await  userStatsService.markRaid("test-user");
-        expect(await userStatsService.getStatsFor("test-user")).toEqual({userId: 'test-user', messageCount: 0, raided: true});
+        await userStatsService.markRaid("test-user");
+        expect(await userStatsService.getStatsFor("test-user")).toEqual({
+            userId: 'test-user',
+            messageCount: 0,
+            raided: true
+        });
     });
 
     it('gets all stats', async () => {
@@ -44,10 +52,10 @@ describe('UserStatsService', () => {
         countALotOfMessages(userStatsService);
 
         const credits = await userStatsService.getCredits();
-        expect(credits[0].title).toEqual(`Die 15 stärksten Chatter`);
-        expect(credits[0].names.length).toEqual(15);
+        expect(credits[0].title).toEqual(`Die 10 stärksten Chatter`);
+        expect(credits[0].names.length).toEqual(10);
         expect(credits[0].names[0]).toEqual('user-20');
-        expect(credits[0].names[14]).toEqual('user-6');
+        expect(credits[0].names[9]).toEqual('user-11');
     });
 
     it('gets credits for less than the max ranks', async () => {

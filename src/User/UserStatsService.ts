@@ -8,6 +8,8 @@ export type CreditCategory = {
 
 export class UserStatsService {
     userGuard: IgnoredUserIdsIngestionGuard = new IgnoredUserIdsIngestionGuard()
+    private readonly maxChatters = 10;
+
     constructor(private readonly store: UserStatsStore) {}
 
     async countMessage(userId: string): Promise<UserStats> {
@@ -40,9 +42,9 @@ export class UserStatsService {
         let chatterNames: string[] = stats.slice()
             .sort((a,b)=> b.messageCount - a.messageCount)
             .filter(entry => entry.messageCount > 0)
-            .slice(0, 10)
+            .slice(0, this.maxChatters)
             .map(entry => entry.userId);
-        credits.push({title: `Die ${Math.min(chatterNames.length, 10)} stärksten Chatter`, names: chatterNames});
+        credits.push({title: `Die ${Math.min(chatterNames.length, this.maxChatters)} stärksten Chatter`, names: chatterNames});
         let raiderNames: string[] = stats.slice()
             .filter(entry => entry.raided)
             .map(entry => entry.userId);

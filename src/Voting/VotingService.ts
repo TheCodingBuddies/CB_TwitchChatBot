@@ -27,7 +27,7 @@ export class VotingService {
             const hasAlreadyVoted = this.activeVoteSession.participants.some(p => p === user)
             if (hasAlreadyVoted)
                 return;
-            let option: VoteOption = this.activeVoteSession.options.find(option => option.name === choseOption);
+            let option: VoteOption = this.activeVoteSession.options.find(option => option.name.toLowerCase() === choseOption.toLowerCase());
             if (option) {
                 option.count++;
                 this.activeVoteSession.options = this.activeVoteSession.options.sort((a, b) => a.count > b.count ? -1 : (a.count < b.count) ? 1 : 0);
