@@ -10,9 +10,9 @@ describe('Message Parser Tests', () => {
             expect(message.aliveText).toEqual(":tmi.twitch.tv");
         });
 
-        it('responses to PONG', () => {
+        it('responses to PONG', async () => {
             const message = new PingMessage("PING :tmi.twitch.tv");
-            expect(message.answer()).toEqual("PONG :tmi.twitch.tv");
+            expect(await message.answer()).toEqual("PONG :tmi.twitch.tv");
         });
     })
 });

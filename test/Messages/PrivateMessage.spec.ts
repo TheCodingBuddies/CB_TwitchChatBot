@@ -3,7 +3,7 @@ import { PrivateMessage } from "../../src/Messages/PrivateMessage";
 describe('PrivateMessage', () => {
     beforeEach(() => {
         process.env.TWITCH_BOT_USERNAME = 'botName';
-        process.env.CHANNEL = 'ourChannel';
+        process.env.TWITCH_CHANNEL_NAME = 'ourChannel';
     })
 
 

@@ -1,4 +1,4 @@
-import {Command, CommandParser, CommandScope} from "../../src/Config/CommandParser";
+import {Command, CommandParser, CommandScope} from "../../src/Commands/CommandParser";
 
 let loadFileFailed = false;
 
@@ -20,6 +20,9 @@ jest.mock('fs', () => {
 describe('Parse Command Config', () => {
     beforeEach(() => {
         loadFileFailed = false;
+    })
+    afterAll(() => {
+        jest.restoreAllMocks();
     })
 
     it('parses from the correct config location', () => {

@@ -1,33 +1,33 @@
-import { CommandMessage } from "./CommandMessage";
-import { PingMessage } from "./PingMessage";
-import { UnknownMessage } from "./UnknownMessage";
-import { VoteMessage } from "./VoteMessage";
-
-const voteCommandIdentifier: string[] = [":!vote", ":!vote-start"];
+import {CommandMessage} from "./CommandMessage";
+import {PingMessage} from "./PingMessage";
+import {UnknownMessage} from "./UnknownMessage";
+import {VoteMessage} from "./VoteMessage";
+import {tarotCommandIdentifier, TarotMessage} from "./TarotMessage";
+import {PING, PRIVMSG, RawMessage} from "./RawMessage";
 
 export class MessageFactory {
-    static parse(rawMessage: string): Message {
-        if (this.isPrivateMessage(rawMessage)) {
-            if (this.isVoteMessage(rawMessage)) {
-                return new VoteMessage(rawMessage);
-            }
-            return new CommandMessage(rawMessage);
-        } else if (this.isPingMessage(rawMessage)) {
-            return new PingMessage(rawMessage);
-        } else {
-            return new UnknownMessage(rawMessage);
+    static process(rawMessage: RawMessage): Message {
+        switch (rawMessage.content.command) {
+            case PRIVMSG:
+                return this.parseChatCommand(rawMessage)
+            case PING:
+                return new PingMessage(rawMessage.content.raw);
+            default:
+                return new UnknownMessage(rawMessage.content.raw);
         }
     }
 
-    private static isPingMessage(rawMessage: string) {
-        return rawMessage.startsWith("PING");
-    }
+    private static parseChatCommand(message: RawMessage): Message {
+        const text = message.content.message?.trim() ?? "";
 
-    private static isPrivateMessage(rawMessage: string) {
-        return rawMessage.includes("PRIVMSG");
-    }
+        const command = text.split(" ")[0];
 
-    private static isVoteMessage(rawMessage: string): boolean {
-        return voteCommandIdentifier.some(cmd => rawMessage.includes(cmd));
+        if (command.startsWith("!vote")) {
+            return new VoteMessage(message);
+        }
+        if (tarotCommandIdentifier.includes(command)) {
+            return new TarotMessage(message);
+        }
+        return new CommandMessage(message);
     }
 }

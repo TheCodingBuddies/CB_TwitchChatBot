@@ -5,8 +5,8 @@ export class PingMessage implements Message {
         this.aliveText = message.split(' ')[1];
     }
 
-    answer(): string {
-        console.log("Got Ping Message -> Time to Response");
+    async answer(): Promise<string> {
+        console.log("Got Ping Message -> Time for Ping Pong");
         return `PONG ${this.aliveText}`;
     }
 }
